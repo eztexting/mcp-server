@@ -1,93 +1,74 @@
-# mcp-ez
+# @eztexting/mcp-server
 
+mcp-name: com.eztexting/mcp
 
+A standalone MCP server bridge that connects local MCP clients (Claude Desktop, Cursor, VS Code, Cline, Windsurf, Zed) to the EZTexting MCP service deployed at `https://mcp.eztexting.com`.
 
-## Getting started
+This package is a thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote): it presents an MCP server over stdio and proxies all traffic to the remote Streamable HTTP server. Authentication uses OAuth 2.1 with PKCE — on first run, your browser opens for sign-in and tokens are cached locally under `~/.mcp-auth/`.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Sub-servers
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+EZTexting exposes four MCP sub-servers. Pick one per install entry:
 
-## Add your files
+| `--server` | URL | Tools |
+|-----------|-----|-------|
+| `messaging` (default) | `https://mcp.eztexting.com/mcp/messaging` | `message_send`, `message_list`, `message_get`, `message_template_*`, `conversation_*`, `message_report_*` |
+| `contacts` | `https://mcp.eztexting.com/mcp/contacts` | `contact_*`, `contact_group_*`, `contact_field_*` |
+| `workflows` | `https://mcp.eztexting.com/mcp/workflows` | `wf_fetch`, `wf_save`, `wf_status`, `wf_schema`, `wf_templates`, `wf_stat`, `wf_pub_available`, `wf_create_from_template` |
+| `admin` | `https://mcp.eztexting.com/mcp/admin` | `account_details`, `buy_credits`, `msg_stat`, `ai_compose_stat`, `webhook_*`, `keyword_list` |
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Install — Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "eztexting-messaging": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--server", "messaging"]
+    },
+    "eztexting-contacts": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--server", "contacts"]
+    },
+    "eztexting-workflows": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--server", "workflows"]
+    },
+    "eztexting-admin": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--server", "admin"]
+    }
+  }
+}
+```
+
+You can omit any sub-server you don't need. First launch opens a browser for OAuth sign-in.
+
+## Install — VS Code / Cursor
+
+Use the same `command` / `args` shape in your client's MCP config (`mcp.json` for VS Code, Cursor settings for Cursor).
+
+## Native remote support
+
+Clients that natively support Streamable HTTP MCP can connect directly without this bridge:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/eztexting/code/mcp-ez.git
-git branch -M main
-git push -uf origin main
+https://mcp.eztexting.com/mcp/messaging
 ```
 
-## Integrate with your tools
+(Same for `/contacts`, `/workflows`, `/admin`.) Use the bridge only for stdio-only clients.
 
-* [Set up project integrations](https://gitlab.com/eztexting/code/mcp-ez/-/settings/integrations)
+## Build from source
 
-## Collaborate with your team
+```
+npm install
+npm run build
+node dist/cli.js --server messaging
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Requirements
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- Node.js 20 or newer
+- An EZTexting account

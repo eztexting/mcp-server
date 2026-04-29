@@ -1,0 +1,33 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.eztexting/mcp",
+  "description": "EZTexting MCP server: SMS/MMS messaging, contacts, workflows, and account administration.",
+  "version": "0.1.0",
+  "repository": {
+    "url": "https://gitlab.com/eztexting/code/mcp-ez",
+    "source": "gitlab"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@eztexting/mcp-server",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--server",
+          "description": "Which sub-server to connect to: messaging | contacts | workflows | admin. Default: messaging.",
+          "isRequired": false
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/messaging" },
+    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/contacts" },
+    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/workflows" },
+    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/admin" }
+  ]
+}
