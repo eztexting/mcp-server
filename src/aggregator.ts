@@ -1,35 +1,27 @@
-// v0.2 DRAFT — single-entry aggregator over the 4 EZTexting MCP sub-servers.
+#!/usr/bin/env node
+// v0.2 — single-entry aggregator over the 4 EZTexting MCP sub-servers.
 //
-// NOT wired into the package bin. v0.1 ships cli.ts (one sub-server per --server flag,
-// thin wrapper around mcp-remote). v0.2 will retarget bin to a built variant of this
-// file once the open items below are resolved.
+// Strategy: spawn one `mcp-remote` child per sub-server (each handles its own
+// OAuth 2.1 PKCE dance + token cache via ~/.mcp-auth/), open a stdio Client to
+// each, and expose one unified stdio Server upstream with prefixed tool names.
 //
-// Additional dependency needed at v0.2:
-//   "@modelcontextprotocol/sdk": "^1.x"
+// First run: user authorizes 4 times (one browser tab per sub-server). Cached
+// tokens persist in ~/.mcp-auth/mcp-remote-<version>/<serverUrlHash>/.
 //
-// Open items before this draft can ship:
-//   1. OAuthClientProvider implementation. Either depend on mcp-remote's
-//      NodeOAuthClientProvider, or write a small file-backed provider at
-//      ~/.mcp-auth/eztexting/. Single browser dance shared across all 4 upstreams.
-//   2. Pre-baked client_id registered in McpRegisteredClientRepository.java so end
-//      users skip Dynamic Client Registration.
-//   3. Audience-binding: one resource (https://mcp.eztexting.com/mcp) shared across
-//      sub-servers, vs. per-sub-server resource. Affects token reuse.
-//   4. Tool name conflict policy. With prefix "messaging_" + upstream tool
-//      "message_send" -> "messaging_message_send". First underscore splits prefix
-//      from upstream name. Verified safe given current tool inventory; revisit if
-//      sub-server names ever start to overlap.
+// Single-dance OAuth across all 4 upstreams is a v0.3 problem — needs either
+// a server-side aggregation endpoint or a custom OAuthClientProvider.
 
+import { createRequire } from 'node:module';
+
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-// import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js';
 
 const SUB_SERVERS = [
   { prefix: 'messaging', url: 'https://mcp.eztexting.com/mcp/messaging' },
@@ -44,20 +36,31 @@ const SERVER_INFO = { name: 'eztexting', version: '0.2.0' };
 interface UpstreamConn {
   prefix: string;
   client: Client;
+  transport: StdioClientTransport;
+}
+
+const require = createRequire(import.meta.url);
+
+function resolveMcpRemoteBin(): string {
+  const pkg = require('mcp-remote/package.json') as { bin?: string | Record<string, string> };
+  const entry = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin && pkg.bin['mcp-remote'];
+  if (!entry) throw new Error('mcp-remote package.json has no mcp-remote bin entry');
+  return require.resolve(`mcp-remote/${entry}`);
 }
 
 async function connectAll(): Promise<UpstreamConn[]> {
-  // TODO(v0.2): construct a shared OAuthClientProvider here and pass it into each
-  // StreamableHTTPClientTransport so all 4 upstreams reuse one browser dance and
-  // one token cache.
+  const bin = resolveMcpRemoteBin();
   return Promise.all(SUB_SERVERS.map(async ({ prefix, url }) => {
-    const transport = new StreamableHTTPClientTransport(new URL(url));
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: [bin, url],
+    });
     const client = new Client(
       { name: `eztexting-${prefix}-bridge`, version: SERVER_INFO.version },
       { capabilities: {} },
     );
     await client.connect(transport);
-    return { prefix, client };
+    return { prefix, client, transport };
   }));
 }
 
@@ -107,6 +110,6 @@ async function main(): Promise<void> {
 
 main().catch((err: unknown) => {
   const msg = err instanceof Error ? err.message : String(err);
-  console.error(`eztexting-mcp aggregator: ${msg}`);
+  process.stderr.write(`eztexting-mcp aggregator: ${msg}\n`);
   process.exit(1);
 });
