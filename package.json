@@ -33,6 +33,7 @@
     "messaging"
   ],
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "mcp-remote": "^0.1.0"
   },
   "devDependencies": {
