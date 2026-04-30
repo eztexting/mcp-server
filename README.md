@@ -4,11 +4,9 @@ mcp-name: com.eztexting/mcp
 
 Standalone MCP server bridge connecting local MCP clients (Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed) to the EZTexting MCP service at `https://mcp.eztexting.com`.
 
-Wraps [`mcp-remote`](https://www.npmjs.com/package/mcp-remote): presents stdio MCP locally, proxies to remote Streamable HTTP. OAuth 2.1 with PKCE — browser opens on first run, tokens cached at `~/.mcp-auth/`.
+Aggregates EZTexting's four sub-servers (messaging, contacts, workflows, admin) over a single stdio MCP entry with one shared OAuth 2.1 PKCE session. On first run a browser opens **once**; tokens cache at `~/.mcp-auth/eztexting-mcp-server/` (mode 0600) and are reused across all four sub-servers and across runs.
 
 ## Sub-servers
-
-EZTexting exposes four MCP sub-servers:
 
 | Sub-server | URL | Tools |
 |-----------|-----|-------|
@@ -17,11 +15,13 @@ EZTexting exposes four MCP sub-servers:
 | `workflows` | `https://mcp.eztexting.com/mcp/workflows` | `wf_fetch`, `wf_save`, `wf_status`, `wf_schema`, `wf_templates`, `wf_stat`, `wf_pub_available`, `wf_create_from_template` |
 | `admin` | `https://mcp.eztexting.com/mcp/admin` | `account_details`, `buy_credits`, `msg_stat`, `ai_compose_stat`, `webhook_*`, `keyword_list` |
 
+Tool names are exposed unprefixed; EZTexting's catalog has no cross-sub-server collisions.
+
 ## Install — single entry (recommended)
 
-One MCP entry covers all four sub-servers. Tool names are prefixed: `messaging_message_send`, `contacts_contact_upsert`, `workflows_wf_fetch`, `admin_account_details`, …
+One MCP entry, all 48 tools, one OAuth dance.
 
-`claude_desktop_config.json` (and equivalent in Cursor / VS Code / Cline / Windsurf):
+`claude_desktop_config.json` (and equivalent in Claude Code, Cursor, VS Code, Cline, Windsurf):
 
 ```json
 {
@@ -34,38 +34,38 @@ One MCP entry covers all four sub-servers. Tool names are prefixed: `messaging_m
 }
 ```
 
-**First run:** four browser tabs open for OAuth sign-in, one per sub-server. Authorize each. Tokens cache at `~/.mcp-auth/mcp-remote-<version>/<hash>/`. Subsequent runs reuse the cache.
+**First run:** browser opens to `https://mcp.eztexting.com/oauth2/...`. Sign in. Browser redirects to `http://localhost:15823/oauth/callback` (deterministic port — same across runs so the registered redirect_uri stays valid). Tokens persist to `~/.mcp-auth/eztexting-mcp-server/{tokens.json,client_info.json}`. Subsequent launches skip the browser.
 
-(v0.2 limitation: 4 separate dances on first run. Single-dance OAuth across all sub-servers is planned for v0.3.)
+To force a fresh sign-in, delete that directory.
 
 ## Install — per sub-server (advanced)
 
-Use one MCP entry per sub-server. Unprefixed tool names. Useful for keeping the tool catalog narrow:
+Use one MCP entry per sub-server when you want narrow tool catalogs or separate Claude Code identities per sub-server. Each invocation runs its own mcp-remote child and its own OAuth dance:
 
 ```json
 {
   "mcpServers": {
     "eztexting-messaging": {
       "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "messaging"]
+      "args": ["-y", "-p", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "messaging"]
     },
     "eztexting-contacts": {
       "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "contacts"]
+      "args": ["-y", "-p", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "contacts"]
     },
     "eztexting-workflows": {
       "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "workflows"]
+      "args": ["-y", "-p", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "workflows"]
     },
     "eztexting-admin": {
       "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "admin"]
+      "args": ["-y", "-p", "@eztexting/mcp-server", "eztexting-mcp-single", "--server", "admin"]
     }
   }
 }
 ```
 
-Omit any sub-server you don't need.
+Omit any sub-server you don't need. `--server <name>` is required (no default).
 
 ## Native remote support
 
@@ -80,6 +80,15 @@ https://mcp.eztexting.com/mcp/admin
 
 Use the bridge only for stdio-only clients.
 
+## Files written
+
+| Path | Purpose |
+|------|---------|
+| `~/.mcp-auth/eztexting-mcp-server/tokens.json` | Access + refresh tokens (mode 0600) |
+| `~/.mcp-auth/eztexting-mcp-server/client_info.json` | Dynamic-client-registration result (mode 0600) |
+
+The `eztexting-mcp-single` bin uses `mcp-remote`'s own cache at `~/.mcp-auth/mcp-remote-<version>/<hash>/` instead.
+
 ## Build from source
 
 ```
@@ -88,14 +97,21 @@ cd mcp-ez
 npm install
 npm run build
 
-# aggregator (default bin)
+# aggregator (default bin) — single OAuth dance, all sub-servers
 node dist/aggregator.js
 
-# per-sub-server
+# per-sub-server (advanced)
 node dist/cli.js --server messaging
 ```
+
+## Architecture
+
+- `src/oauthProvider.ts` — `SharedOAuthProvider` implementing the SDK's `OAuthClientProvider` interface. Stable callback port derived from canonical resource (SHA-256 → 12000–19999), single localhost HTTP listener bound at `start()`, file-backed token + client_info storage, `open` package for browser launch.
+- `src/aggregator.ts` — connects the messaging upstream first (catches `UnauthorizedError`, awaits callback, calls `transport.finishAuth(code)`). Once tokens are saved, the remaining three upstreams connect in parallel reusing the cache. Exposes one stdio `Server` upstream that fans `tools/list` across all four upstream `Client`s and routes `tools/call` to the owner captured at last list.
+- `src/cli.ts` — single-sub-server bin. Spawns `mcp-remote` as a child against one of the four sub-server URLs.
 
 ## Requirements
 
 - Node.js 20+
 - EZTexting account
+- Browser available on first run (for the OAuth dance)
