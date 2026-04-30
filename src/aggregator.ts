@@ -1,20 +1,17 @@
 #!/usr/bin/env node
-// v0.2 — single-entry aggregator over the 4 EZTexting MCP sub-servers.
+// v0.3 — single-entry aggregator with shared OAuth provider.
 //
-// Strategy: spawn one `mcp-remote` child per sub-server (each handles its own
-// OAuth 2.1 PKCE dance + token cache via ~/.mcp-auth/), open a stdio Client to
-// each, and expose one unified stdio Server upstream with prefixed tool names.
+// Strategy: one SharedOAuthProvider instance services all 4 upstream Streamable
+// HTTP connections. First connection that needs auth triggers ONE browser dance;
+// the resulting tokens are written to ~/.mcp-auth/eztexting-mcp-server/ and the
+// remaining 3 upstreams reuse them without further user interaction.
 //
-// First run: user authorizes 4 times (one browser tab per sub-server). Cached
-// tokens persist in ~/.mcp-auth/mcp-remote-<version>/<serverUrlHash>/.
-//
-// Single-dance OAuth across all 4 upstreams is a v0.3 problem — needs either
-// a server-side aggregation endpoint or a custom OAuthClientProvider.
-
-import { createRequire } from 'node:module';
+// Tool names from each sub-server are exposed unprefixed since EZTexting's
+// catalog has no cross-server collisions today; if collisions arise, prefix
+// here before constructing the spec.
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -22,79 +19,96 @@ import {
   ListToolsRequestSchema,
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import { UnauthorizedError } from '@modelcontextprotocol/sdk/client/auth.js';
 
+import { SharedOAuthProvider } from './oauthProvider.js';
+
+const CANONICAL_RESOURCE = 'https://mcp.eztexting.com/mcp';
 const SUB_SERVERS = [
-  { prefix: 'messaging', url: 'https://mcp.eztexting.com/mcp/messaging' },
-  { prefix: 'contacts',  url: 'https://mcp.eztexting.com/mcp/contacts' },
-  { prefix: 'workflows', url: 'https://mcp.eztexting.com/mcp/workflows' },
-  { prefix: 'admin',     url: 'https://mcp.eztexting.com/mcp/admin' },
+  { name: 'messaging', url: 'https://mcp.eztexting.com/mcp/messaging' },
+  { name: 'contacts',  url: 'https://mcp.eztexting.com/mcp/contacts' },
+  { name: 'workflows', url: 'https://mcp.eztexting.com/mcp/workflows' },
+  { name: 'admin',     url: 'https://mcp.eztexting.com/mcp/admin' },
 ] as const;
 
-const PREFIX_SEP = '_';
-const SERVER_INFO = { name: 'eztexting', version: '0.2.0' };
+const SERVER_INFO = { name: 'eztexting', version: '0.3.0' };
 
 interface UpstreamConn {
-  prefix: string;
+  name: string;
   client: Client;
-  transport: StdioClientTransport;
 }
 
-const require = createRequire(import.meta.url);
+async function connectUpstream(
+  url: string,
+  name: string,
+  authProvider: SharedOAuthProvider,
+): Promise<Client> {
+  const client = new Client(
+    { name: `eztexting-${name}-bridge`, version: SERVER_INFO.version },
+    { capabilities: {} },
+  );
+  const makeTransport = (): StreamableHTTPClientTransport =>
+    new StreamableHTTPClientTransport(new URL(url), { authProvider });
 
-function resolveMcpRemoteBin(): string {
-  const pkg = require('mcp-remote/package.json') as { bin?: string | Record<string, string> };
-  const entry = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin && pkg.bin['mcp-remote'];
-  if (!entry) throw new Error('mcp-remote package.json has no mcp-remote bin entry');
-  return require.resolve(`mcp-remote/${entry}`);
-}
+  try {
+    await client.connect(makeTransport());
+    return client;
+  } catch (err: unknown) {
+    if (!(err instanceof UnauthorizedError)) throw err;
+  }
 
-async function connectAll(): Promise<UpstreamConn[]> {
-  const bin = resolveMcpRemoteBin();
-  return Promise.all(SUB_SERVERS.map(async ({ prefix, url }) => {
-    const transport = new StdioClientTransport({
-      command: process.execPath,
-      args: [bin, url],
-    });
-    const client = new Client(
-      { name: `eztexting-${prefix}-bridge`, version: SERVER_INFO.version },
-      { capabilities: {} },
-    );
-    await client.connect(transport);
-    return { prefix, client, transport };
-  }));
+  const code = await authProvider.waitForAuthorizationCode();
+  const transport = makeTransport();
+  await transport.finishAuth(code);
+  await client.connect(transport);
+  return client;
 }
 
 async function main(): Promise<void> {
-  const upstreams = await connectAll();
-  const byPrefix = new Map(upstreams.map(u => [u.prefix, u]));
+  const authProvider = new SharedOAuthProvider({ resource: CANONICAL_RESOURCE });
+  await authProvider.start();
+
+  // Connect the first upstream alone so a single OAuth dance covers all four.
+  // Once it succeeds, tokens are saved to disk and the remaining upstreams reuse
+  // them in parallel.
+  const [first, ...rest] = SUB_SERVERS;
+  const firstConn: UpstreamConn = {
+    name: first.name,
+    client: await connectUpstream(first.url, first.name, authProvider),
+  };
+  const restConns: UpstreamConn[] = await Promise.all(rest.map(async ({ name, url }) => ({
+    name,
+    client: await connectUpstream(url, name, authProvider),
+  })));
+  const upstreams = [firstConn, ...restConns];
+  await authProvider.stop();
 
   const server = new Server(SERVER_INFO, { capabilities: { tools: {} } });
+  const toolOwner = new Map<string, Client>();
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    const lists = await Promise.all(upstreams.map(async ({ prefix, client }) => {
+    const lists = await Promise.all(upstreams.map(async ({ client }) => {
       const { tools } = await client.listTools();
-      return tools.map((t): Tool => ({
-        ...t,
-        name: `${prefix}${PREFIX_SEP}${t.name}`,
-        description: t.description ? `[${prefix}] ${t.description}` : `[${prefix}]`,
-      }));
+      return tools;
     }));
-    return { tools: lists.flat() };
+    toolOwner.clear();
+    const flat: Tool[] = [];
+    lists.forEach((tools, idx) => {
+      const owner = upstreams[idx]?.client;
+      if (!owner) return;
+      for (const t of tools) {
+        toolOwner.set(t.name, owner);
+        flat.push(t);
+      }
+    });
+    return { tools: flat };
   });
 
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const { name, arguments: args } = req.params;
-    const sep = name.indexOf(PREFIX_SEP);
-    if (sep <= 0) {
-      throw new Error(`tool "${name}" missing required "<prefix>${PREFIX_SEP}..." segment`);
-    }
-    const prefix = name.slice(0, sep);
-    const upstream = byPrefix.get(prefix);
-    if (!upstream) {
-      throw new Error(`unknown tool prefix "${prefix}"; valid: ${[...byPrefix.keys()].join(', ')}`);
-    }
-    const upstreamName = name.slice(sep + 1);
-    return upstream.client.callTool({ name: upstreamName, arguments: args });
+    const owner = toolOwner.get(name);
+    if (!owner) throw new Error(`unknown tool "${name}"; call tools/list first`);
+    return owner.callTool({ name, arguments: args });
   });
 
   await server.connect(new StdioServerTransport());
