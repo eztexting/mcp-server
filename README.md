@@ -38,6 +38,23 @@ One MCP entry, all 48 tools, one OAuth dance.
 
 To force a fresh sign-in, delete that directory.
 
+### Trim the tool catalog with `--servers`
+
+All four sub-servers load by default (~48 tools, ~14k tokens of context). To load only the sub-servers you need, pass a comma-separated whitelist. Tools from other sub-servers are not exposed:
+
+```json
+{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--servers", "messaging,contacts"]
+    }
+  }
+}
+```
+
+Valid names: `messaging`, `contacts`, `workflows`, `admin`. The OAuth dance still covers the canonical resource, so adding more sub-servers later requires no re-auth.
+
 ## Install — per sub-server (advanced)
 
 Use one MCP entry per sub-server when you want narrow tool catalogs or separate Claude Code identities per sub-server. Each invocation runs its own mcp-remote child and its own OAuth dance:

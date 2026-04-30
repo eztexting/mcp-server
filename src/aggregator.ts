@@ -24,14 +24,43 @@ import { UnauthorizedError } from '@modelcontextprotocol/sdk/client/auth.js';
 import { SharedOAuthProvider } from './oauthProvider.js';
 
 const CANONICAL_RESOURCE = 'https://mcp.eztexting.com/mcp';
-const SUB_SERVERS = [
+const ALL_SUB_SERVERS = [
   { name: 'messaging', url: 'https://mcp.eztexting.com/mcp/messaging' },
   { name: 'contacts',  url: 'https://mcp.eztexting.com/mcp/contacts' },
   { name: 'workflows', url: 'https://mcp.eztexting.com/mcp/workflows' },
   { name: 'admin',     url: 'https://mcp.eztexting.com/mcp/admin' },
 ] as const;
 
+type SubServer = (typeof ALL_SUB_SERVERS)[number];
+
 const SERVER_INFO = { name: 'eztexting', version: '0.3.0' };
+
+function parseServersFlag(argv: readonly string[]): readonly SubServer[] {
+  const idx = argv.indexOf('--servers');
+  if (idx < 0) return ALL_SUB_SERVERS;
+  const raw = argv[idx + 1];
+  if (!raw) {
+    process.stderr.write('eztexting-mcp: --servers requires a comma-separated list\n');
+    process.exit(2);
+  }
+  const requested = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const valid = new Map<string, SubServer>(ALL_SUB_SERVERS.map(s => [s.name, s]));
+  const selected: SubServer[] = [];
+  for (const name of requested) {
+    const sub = valid.get(name);
+    if (!sub) {
+      const validNames = [...valid.keys()].join(', ');
+      process.stderr.write(`eztexting-mcp: unknown server "${name}"; valid: ${validNames}\n`);
+      process.exit(2);
+    }
+    if (!selected.includes(sub)) selected.push(sub);
+  }
+  if (selected.length === 0) {
+    process.stderr.write('eztexting-mcp: --servers list resolved to zero servers\n');
+    process.exit(2);
+  }
+  return selected;
+}
 
 interface UpstreamConn {
   name: string;
@@ -65,13 +94,15 @@ async function connectUpstream(
 }
 
 async function main(): Promise<void> {
+  const subServers = parseServersFlag(process.argv.slice(2));
   const authProvider = new SharedOAuthProvider({ resource: CANONICAL_RESOURCE });
   await authProvider.start();
 
-  // Connect the first upstream alone so a single OAuth dance covers all four.
+  // Connect the first upstream alone so a single OAuth dance covers all of them.
   // Once it succeeds, tokens are saved to disk and the remaining upstreams reuse
   // them in parallel.
-  const [first, ...rest] = SUB_SERVERS;
+  const [first, ...rest] = subServers;
+  if (!first) throw new Error('no sub-servers selected');
   const firstConn: UpstreamConn = {
     name: first.name,
     client: await connectUpstream(first.url, first.name, authProvider),
