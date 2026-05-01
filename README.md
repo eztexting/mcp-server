@@ -113,3 +113,7 @@ Picks the freshest tokens at `~/.mcp-auth/mcp-remote-*/<hash>_tokens.json`. Over
 - Node.js 20+
 - EZTexting account
 - Browser available on first run (for the OAuth dance)
+
+## See also
+
+- [EZ MCP — full tool reference + server docs](https://eztext.atlassian.net/wiki/spaces/DR/pages/1398243331/EZ+MCP)
