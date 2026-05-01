@@ -9,6 +9,7 @@
   },
   "files": [
     "dist",
+    "LICENSE",
     "README.md",
     "server.json"
   ],
@@ -24,7 +25,7 @@
     "url": "git+https://gitlab.com/eztexting/public/mcp-server.git"
   },
   "homepage": "https://mcp.eztexting.com",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "keywords": [
     "mcp",
     "model-context-protocol",
