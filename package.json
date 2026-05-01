@@ -1,6 +1,6 @@
 {
   "name": "@eztexting/mcp-server",
-  "version": "0.4.0",
+  "version": "0.1.0",
   "description": "EZTexting MCP server bridge — connects local MCP clients to https://mcp.eztexting.com via Streamable HTTP + OAuth 2.1 PKCE.",
   "mcpName": "com.eztexting/mcp",
   "type": "module",
