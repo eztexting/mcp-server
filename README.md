@@ -93,15 +93,20 @@ mcp-remote owns the auth cache: `~/.mcp-auth/mcp-remote-<version>/<serverUrlHash
 `measure-tokens.sh` probes each endpoint and prints byte + tool counts:
 
 ```
+using token cache: ~/.mcp-auth/mcp-remote-0.1.37/<hash>_tokens.json
+
 endpoint           bytes      tools    ~tokens
-/mcp               24939      42       ~6234
-/mcp/messaging     9596       13       ~2399
-/mcp/contacts      6653       12       ~1663
-/mcp/workflows     5116       8        ~1279
-/mcp/admin         3574       9        ~893
+------------------ -----      -----    -------
+/mcp               15472      38       ~3868
+/mcp/messaging     6912       13       ~1728
+/mcp/contacts      4414       12       ~1103
+/mcp/workflows     3996       8        ~999
+/mcp/admin         2148       9        ~537
 ```
 
 Re-run after any tool description change to track impact. Token estimate is `bytes / 4`.
+
+Picks the freshest tokens at `~/.mcp-auth/mcp-remote-*/<hash>_tokens.json`. Override with `TOKENS_FILE=...`.
 
 ## Requirements
 

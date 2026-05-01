@@ -4,18 +4,16 @@
 set -euo pipefail
 
 HOST="${MCP_HOST:-https://mcp.eztexting.com}"
-TOKENS_FILE_DEFAULT="$HOME/.mcp-auth/eztexting-mcp-server/tokens.json"
-TOKENS_FILE="${TOKENS_FILE:-$TOKENS_FILE_DEFAULT}"
 ENDPOINTS=("/mcp" "/mcp/messaging" "/mcp/contacts" "/mcp/workflows" "/mcp/admin")
 
-# Fall back to mcp-remote's cache if the legacy aggregator cache is missing.
-if [[ ! -f "$TOKENS_FILE" ]]; then
-  remote_tokens=$(find "$HOME/.mcp-auth" -path '*mcp-remote*' -name 'tokens.json' 2>/dev/null | head -1 || true)
-  if [[ -n "$remote_tokens" ]]; then TOKENS_FILE="$remote_tokens"; fi
+# Locate the freshest mcp-remote token cache:
+# ~/.mcp-auth/mcp-remote-<version>/<hash>_tokens.json
+if [[ -z "${TOKENS_FILE:-}" ]]; then
+  TOKENS_FILE=$(ls -t "$HOME/.mcp-auth"/mcp-remote-*/*_tokens.json 2>/dev/null | head -1 || true)
 fi
 
-if [[ ! -f "$TOKENS_FILE" ]]; then
-  echo "no tokens found — run the bridge once to authorize:" >&2
+if [[ -z "${TOKENS_FILE:-}" || ! -f "$TOKENS_FILE" ]]; then
+  echo "no token cache found — run the bridge once to authorize:" >&2
   echo "  node $(dirname "$0")/dist/cli.js" >&2
   exit 1
 fi
@@ -49,11 +47,14 @@ probe_status() {
 
 first_status=$(probe_status "${ENDPOINTS[1]}")
 if [[ "$first_status" == "401" ]]; then
-  echo "token expired (401). Re-run the bridge to refresh:" >&2
-  echo "  rm -f $TOKENS_FILE" >&2
+  echo "token expired (401) at $TOKENS_FILE. Re-run the bridge to refresh:" >&2
+  echo "  rm -f \"$TOKENS_FILE\"" >&2
   echo "  node $(dirname "$0")/dist/cli.js" >&2
   exit 1
 fi
+
+echo "using token cache: $TOKENS_FILE"
+echo
 
 printf '%-18s %-10s %-8s %s\n' "endpoint" "bytes" "tools" "~tokens"
 printf '%-18s %-10s %-8s %s\n' "------------------" "-----" "-----" "-------"
