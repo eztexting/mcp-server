@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/eztexting/code/mcp-ez.git"
+    "url": "git+https://gitlab.com/eztexting/public/mcp-server.git"
   },
   "homepage": "https://mcp.eztexting.com",
   "license": "UNLICENSED",

@@ -76,8 +76,8 @@ Use the bridge only for stdio-only clients.
 ## Build from source
 
 ```
-git clone https://gitlab.com/eztexting/code/mcp-ez.git
-cd mcp-ez
+git clone https://gitlab.com/eztexting/public/mcp-server.git
+cd mcp-server
 npm install
 npm run build
 node dist/cli.js                        # unified /mcp endpoint

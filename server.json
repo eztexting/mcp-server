@@ -4,7 +4,7 @@
   "description": "EZTexting MCP server: SMS/MMS messaging, contacts, workflows, and account administration.",
   "version": "0.1.0",
   "repository": {
-    "url": "https://gitlab.com/eztexting/code/mcp-ez",
+    "url": "https://gitlab.com/eztexting/public/mcp-server",
     "source": "gitlab"
   },
   "packages": [
