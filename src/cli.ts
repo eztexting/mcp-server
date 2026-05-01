@@ -2,6 +2,8 @@
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 
+const UNIFIED_ENDPOINT = 'https://mcp.eztexting.com/mcp';
+
 const SUB_ENDPOINTS = {
   messaging: 'https://mcp.eztexting.com/mcp/messaging',
   contacts:  'https://mcp.eztexting.com/mcp/contacts',
@@ -15,15 +17,14 @@ const require = createRequire(import.meta.url);
 
 function parseArgs(argv: readonly string[]): { url: string; passthrough: string[] } {
   const args = [...argv];
-  const valid = Object.keys(SUB_ENDPOINTS).join(', ');
   const idx = args.indexOf('--server');
   if (idx < 0) {
-    process.stderr.write(`eztexting-mcp-single: --server <name> is required; valid: ${valid}\n`);
-    process.exit(2);
+    return { url: UNIFIED_ENDPOINT, passthrough: args };
   }
   const next = args[idx + 1];
   if (next === undefined || !(next in SUB_ENDPOINTS)) {
-    process.stderr.write(`eztexting-mcp-single: unknown --server "${next ?? ''}"; valid: ${valid}\n`);
+    const valid = Object.keys(SUB_ENDPOINTS).join(', ');
+    process.stderr.write(`eztexting-mcp: unknown --server "${next ?? ''}"; valid: ${valid}\n`);
     process.exit(2);
   }
   args.splice(idx, 2);

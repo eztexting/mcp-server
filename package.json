@@ -1,12 +1,11 @@
 {
   "name": "@eztexting/mcp-server",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "EZTexting MCP server bridge — connects local MCP clients to https://mcp.eztexting.com via Streamable HTTP + OAuth 2.1 PKCE.",
   "mcpName": "com.eztexting/mcp",
   "type": "module",
   "bin": {
-    "eztexting-mcp": "dist/aggregator.js",
-    "eztexting-mcp-single": "dist/cli.js"
+    "eztexting-mcp": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -34,9 +33,7 @@
     "messaging"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "mcp-remote": "^0.1.0",
-    "open": "^10.0.0"
+    "mcp-remote": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
