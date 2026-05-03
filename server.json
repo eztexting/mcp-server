@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.eztexting/mcp",
-  "description": "EZTexting MCP server: SMS/MMS messaging, contacts, workflows, and account administration.",
-  "version": "0.1.0",
+  "description": "Official EZTexting MCP server: SMS/MMS messaging, contacts, workflows, and account administration.",
+  "version": "0.2.0",
   "repository": {
     "url": "https://gitlab.com/eztexting/public/mcp-server",
     "source": "gitlab"
@@ -11,7 +11,7 @@
     {
       "registryType": "npm",
       "identifier": "@eztexting/mcp-server",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
