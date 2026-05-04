@@ -177,16 +177,15 @@
   <ul>
     <li><a href="#overview">Overview</a></li>
     <li><a href="#prereqs">Prerequisites</a></li>
+    <li><a href="#claude-web">Claude.ai</a></li>
+    <li><a href="#chatgpt">ChatGPT</a></li>
     <li><a href="#claude-desktop">Claude Desktop</a></li>
     <li><a href="#claude-code">Claude Code</a></li>
-    <li><a href="#claude-web">Claude.ai (remote)</a></li>
     <li><a href="#cursor">Cursor</a></li>
     <li><a href="#vscode">VS Code</a></li>
-    <li><a href="#cline">Cline</a></li>
     <li><a href="#windsurf">Windsurf</a></li>
-    <li><a href="#zed">Zed</a></li>
-    <li><a href="#chatgpt">ChatGPT (remote)</a></li>
-    <li><a href="#native-http">Native Streamable HTTP</a></li>
+    <li><a href="#cline">Cline</a></li>
+    <li><a href="#zed">Zed</a> <small class="muted">— local only</small></li>
     <li><a href="#sub-servers">Sub-servers</a></li>
     <li><a href="#first-run">First run / OAuth</a></li>
     <li><a href="#troubleshooting">Troubleshooting</a></li>
@@ -198,96 +197,37 @@
 <h2>Overview</h2>
 <p>
 EZTexting MCP exposes 42 tools — send SMS/MMS, manage contacts and groups, run workflows, fetch reports, manage webhooks, query account state.
-There are two ways to connect:
 </p>
+<div class="note">
+  <strong>Prefer remote.</strong> If your client speaks Streamable HTTP MCP, point it at <code>https://mcp.eztexting.com/mcp</code> directly. No npm, no Node, no child process, faster startup, auto-updates server-side. Use the local stdio bridge only when the client doesn't support remote yet.
+</div>
 <div class="row">
   <div class="card">
-    <h3>Local stdio bridge</h3>
-    <p class="muted">For clients that only speak stdio MCP (Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed).</p>
-    <p>Runs <code>npx -y @eztexting/mcp-server</code> as a child process. Browser pops on first run for OAuth. Tokens cached in <code>~/.mcp-auth/</code>.</p>
+    <h3>1. Remote — Streamable HTTP <span class="pill" style="font-size:10px;padding:2px 8px;">recommended</span></h3>
+    <p class="muted">Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+.</p>
+    <p>Endpoint: <code>https://mcp.eztexting.com/mcp</code>. OAuth 2.1 PKCE auto-discovered.</p>
   </div>
   <div class="card">
-    <h3>Native Streamable HTTP</h3>
-    <p class="muted">For clients that speak remote MCP directly (Claude.ai web, ChatGPT custom connectors, future-native clients).</p>
-    <p>Point straight at <code>https://mcp.eztexting.com/mcp</code>. No npm, no Node, no bridge.</p>
+    <h3>2. Local — stdio bridge</h3>
+    <p class="muted">Fallback: clients without native remote MCP support, air-gapped envs, or proxy quirks.</p>
+    <p>Runs <code>npx -y @eztexting/mcp-server</code> as child process. Tokens cached in <code>~/.mcp-auth/</code>.</p>
   </div>
 </div>
+
 </section>
 
 <section id="prereqs">
 <h2>Prerequisites</h2>
 <ul>
   <li><strong>EZTexting account</strong> — sign in at <a href="https://app.eztexting.com" target="_blank" rel="noopener">app.eztexting.com</a>.</li>
-  <li><strong>Node.js 20+</strong> — only for local stdio bridge. Verify: <code>node -v</code>.</li>
-  <li><strong>Browser</strong> — first run pops OAuth 2.1 PKCE flow.</li>
+  <li><strong>Browser</strong> — OAuth 2.1 PKCE pops on first connect.</li>
+  <li><strong>Node.js 20+</strong> — <em>only</em> if you fall back to the local stdio bridge. Verify: <code>node -v</code>.</li>
 </ul>
-</section>
-
-<!-- ============== CLAUDE DESKTOP ============== -->
-<section id="claude-desktop">
-<h2>Claude Desktop (local)</h2>
-<p>Edit your config file, then fully quit + relaunch Claude Desktop.</p>
-
-<h3>Config file location</h3>
-<table>
-  <tr><th>OS</th><th>Path</th></tr>
-  <tr><td>macOS</td><td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td></tr>
-  <tr><td>Windows</td><td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td></tr>
-  <tr><td>Linux</td><td><code>~/.config/Claude/claude_desktop_config.json</code></td></tr>
-</table>
-
-<h3>Config (unified — all 42 tools)</h3>
-<div class="codewrap">
-<pre><code id="code-cd">{
-  "mcpServers": {
-    "eztexting": {
-      "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server"]
-    }
-  }
-}</code></pre>
-<button class="copy" data-target="code-cd">Copy</button>
-</div>
-<p class="muted">Verify: open Claude Desktop → Settings → Developer → MCP Servers. <code>eztexting</code> should be listed and "running".</p>
-</section>
-
-<!-- ============== CLAUDE CODE ============== -->
-<section id="claude-code">
-<h2>Claude Code (local CLI)</h2>
-<p>Two ways: CLI command or edit settings JSON.</p>
-
-<h3>CLI (recommended)</h3>
-<div class="codewrap">
-<pre><code id="code-cc1">claude mcp add eztexting -- npx -y @eztexting/mcp-server</code></pre>
-<button class="copy" data-target="code-cc1">Copy</button>
-</div>
-<p>Scope to user (global) or project:</p>
-<div class="codewrap">
-<pre><code id="code-cc2">claude mcp add --scope user eztexting -- npx -y @eztexting/mcp-server
-claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code></pre>
-<button class="copy" data-target="code-cc2">Copy</button>
-</div>
-
-<h3>Manual config</h3>
-<p>Edit <code>~/.claude.json</code> (user scope) or <code>.mcp.json</code> in repo root (project scope):</p>
-<div class="codewrap">
-<pre><code id="code-cc3">{
-  "mcpServers": {
-    "eztexting": {
-      "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server"]
-    }
-  }
-}</code></pre>
-<button class="copy" data-target="code-cc3">Copy</button>
-</div>
-<p class="muted">Verify: <code>claude mcp list</code></p>
 </section>
 
 <!-- ============== CLAUDE.AI WEB ============== -->
 <section id="claude-web">
-<h2>Claude.ai (remote, no install)</h2>
-<p>Claude.ai supports remote MCP servers via the Connectors UI. No bridge, no Node.</p>
+<h2>Claude.ai (web)</h2>
 <ol>
   <li>Go to <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai → Settings → Connectors</a>.</li>
   <li>Click <strong>Add custom connector</strong>.</li>
@@ -300,13 +240,131 @@ claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code><
   </li>
   <li>Save → Click <strong>Connect</strong> → OAuth pop-up → sign in.</li>
 </ol>
-<p class="muted">Available on Pro / Team / Enterprise plans.</p>
+<p class="muted">Available on Pro / Max / Team / Enterprise plans.</p>
+</section>
+
+<!-- ============== CHATGPT ============== -->
+<section id="chatgpt">
+<h2>ChatGPT</h2>
+<p>ChatGPT supports remote MCP via custom connectors (Plus / Pro / Team / Enterprise — Developer mode).</p>
+<ol>
+  <li><strong>Settings → Connectors → Advanced settings</strong> → enable <strong>Developer mode</strong>.</li>
+  <li><strong>Connectors → Create</strong>.</li>
+  <li>Name: <code>EZTexting</code></li>
+  <li>MCP Server URL:
+    <div class="codewrap">
+    <pre><code id="code-gpt">https://mcp.eztexting.com/mcp</code></pre>
+    <button class="copy" data-target="code-gpt">Copy</button>
+    </div>
+  </li>
+  <li>Auth: <strong>OAuth</strong> (auto-discovered).</li>
+  <li>Save → Connect → sign in.</li>
+</ol>
+</section>
+
+<!-- ============== CLAUDE DESKTOP ============== -->
+<section id="claude-desktop">
+<h2>Claude Desktop</h2>
+
+<h3>Remote — Custom Connector (recommended)</h3>
+<ol>
+  <li><strong>Settings → Connectors → Add custom connector</strong>.</li>
+  <li>Name: <code>EZTexting</code></li>
+  <li>URL: <code>https://mcp.eztexting.com/mcp</code></li>
+  <li>Save → Connect → OAuth pop-up → sign in.</li>
+</ol>
+<p class="muted">Pro / Max / Team / Enterprise plans. No config file, no Node.</p>
+
+<h3>Local stdio — fallback</h3>
+<p>Edit your config file, then fully quit + relaunch Claude Desktop.</p>
+<table>
+  <tr><th>OS</th><th>Path</th></tr>
+  <tr><td>macOS</td><td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td></tr>
+  <tr><td>Windows</td><td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td></tr>
+  <tr><td>Linux</td><td><code>~/.config/Claude/claude_desktop_config.json</code></td></tr>
+</table>
+<div class="codewrap">
+<pre><code id="code-cd">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cd">Copy</button>
+</div>
+<p class="muted">Verify: Settings → Developer → MCP Servers. <code>eztexting</code> shown as "running".</p>
+</section>
+
+<!-- ============== CLAUDE CODE ============== -->
+<section id="claude-code">
+<h2>Claude Code</h2>
+
+<h3>Remote — HTTP transport (recommended)</h3>
+<div class="codewrap">
+<pre><code id="code-cc-rem">claude mcp add --transport http eztexting https://mcp.eztexting.com/mcp</code></pre>
+<button class="copy" data-target="code-cc-rem">Copy</button>
+</div>
+<p>Scope flag works the same:</p>
+<div class="codewrap">
+<pre><code id="code-cc-rem2">claude mcp add --transport http --scope user eztexting https://mcp.eztexting.com/mcp
+claude mcp add --transport http --scope project eztexting https://mcp.eztexting.com/mcp</code></pre>
+<button class="copy" data-target="code-cc-rem2">Copy</button>
+</div>
+<p>Or in <code>~/.claude.json</code> / <code>.mcp.json</code>:</p>
+<div class="codewrap">
+<pre><code id="code-cc-rem3">{
+  "mcpServers": {
+    "eztexting": {
+      "type": "http",
+      "url": "https://mcp.eztexting.com/mcp"
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cc-rem3">Copy</button>
+</div>
+<p class="muted">Verify: <code>claude mcp list</code>. First tool call triggers OAuth.</p>
+
+<h3>Local stdio — fallback</h3>
+<div class="codewrap">
+<pre><code id="code-cc1">claude mcp add eztexting -- npx -y @eztexting/mcp-server</code></pre>
+<button class="copy" data-target="code-cc1">Copy</button>
+</div>
+<p>Or JSON:</p>
+<div class="codewrap">
+<pre><code id="code-cc3">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cc3">Copy</button>
+</div>
 </section>
 
 <!-- ============== CURSOR ============== -->
 <section id="cursor">
-<h2>Cursor (local)</h2>
-<p>Edit <code>~/.cursor/mcp.json</code> (global) or <code>.cursor/mcp.json</code> in your project:</p>
+<h2>Cursor (0.46+)</h2>
+
+<h3>Remote (recommended)</h3>
+<p>Edit <code>~/.cursor/mcp.json</code> (global) or <code>.cursor/mcp.json</code> (project):</p>
+<div class="codewrap">
+<pre><code id="code-cursor-rem">{
+  "mcpServers": {
+    "eztexting": {
+      "type": "http",
+      "url": "https://mcp.eztexting.com/mcp"
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cursor-rem">Copy</button>
+</div>
+<p class="muted">Or: <strong>Settings → MCP → Add new MCP server</strong> → choose <em>HTTP</em> transport.</p>
+
+<h3>Local stdio — fallback</h3>
 <div class="codewrap">
 <pre><code id="code-cursor">{
   "mcpServers": {
@@ -318,17 +376,28 @@ claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code><
 }</code></pre>
 <button class="copy" data-target="code-cursor">Copy</button>
 </div>
-<p>Or: <strong>Cursor → Settings → MCP → Add new MCP server</strong>. Restart Cursor.</p>
-<p class="muted">Cursor 0.46+ also supports remote MCP. Use URL <code>https://mcp.eztexting.com/mcp</code> with <code>"type": "http"</code>.</p>
 </section>
 
 <!-- ============== VS CODE ============== -->
 <section id="vscode">
-<h2>VS Code (GitHub Copilot Chat — Agent Mode)</h2>
-<p>VS Code 1.99+ supports MCP natively in Copilot Chat agent mode.</p>
+<h2>VS Code 1.99+ (GitHub Copilot Chat — Agent Mode)</h2>
 
-<h3>User config</h3>
+<h3>Remote (recommended)</h3>
 <p>Command palette → <code>MCP: Open User Configuration</code>. Add:</p>
+<div class="codewrap">
+<pre><code id="code-vsc2">{
+  "servers": {
+    "eztexting": {
+      "type": "http",
+      "url": "https://mcp.eztexting.com/mcp"
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-vsc2">Copy</button>
+</div>
+<p class="muted">Workspace scope: same shape in <code>.vscode/mcp.json</code>. Open Copilot Chat → <strong>Agent</strong> mode → <code>eztexting</code> tools surface.</p>
+
+<h3>Local stdio — fallback</h3>
 <div class="codewrap">
 <pre><code id="code-vsc1">{
   "servers": {
@@ -341,34 +410,61 @@ claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code><
 }</code></pre>
 <button class="copy" data-target="code-vsc1">Copy</button>
 </div>
+</section>
 
-<h3>Workspace config</h3>
-<p>Create <code>.vscode/mcp.json</code> in repo root (same shape).</p>
+<!-- ============== WINDSURF ============== -->
+<section id="windsurf">
+<h2>Windsurf (Codeium)</h2>
+<p>Edit <code>~/.codeium/windsurf/mcp_config.json</code> (or: <strong>Settings → Cascade → MCP Servers → Add</strong>).</p>
 
-<h3>Remote variant (no Node needed)</h3>
+<h3>Remote (recommended)</h3>
 <div class="codewrap">
-<pre><code id="code-vsc2">{
-  "servers": {
+<pre><code id="code-windsurf-rem">{
+  "mcpServers": {
     "eztexting": {
-      "type": "http",
-      "url": "https://mcp.eztexting.com/mcp"
+      "serverUrl": "https://mcp.eztexting.com/mcp"
     }
   }
 }</code></pre>
-<button class="copy" data-target="code-vsc2">Copy</button>
+<button class="copy" data-target="code-windsurf-rem">Copy</button>
 </div>
-<p class="muted">Open Copilot Chat → switch to <strong>Agent</strong> mode → tools list now shows <code>eztexting</code>.</p>
+
+<h3>Local stdio — fallback</h3>
+<div class="codewrap">
+<pre><code id="code-windsurf">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-windsurf">Copy</button>
+</div>
+<p class="muted">Restart Windsurf after editing.</p>
 </section>
 
 <!-- ============== CLINE ============== -->
 <section id="cline">
-<h2>Cline (VS Code extension)</h2>
-<ol>
-  <li>Open Cline panel in VS Code.</li>
-  <li>Click the <strong>MCP Servers</strong> icon (top of panel).</li>
-  <li>Click <strong>Configure MCP Servers</strong> → opens <code>cline_mcp_settings.json</code>.</li>
-  <li>Add:</li>
-</ol>
+<h2>Cline 3.0+ (VS Code extension)</h2>
+<p>Open Cline panel → <strong>MCP Servers</strong> icon → <strong>Configure MCP Servers</strong> → opens <code>cline_mcp_settings.json</code>.</p>
+
+<h3>Remote (recommended)</h3>
+<div class="codewrap">
+<pre><code id="code-cline-rem">{
+  "mcpServers": {
+    "eztexting": {
+      "type": "streamableHttp",
+      "url": "https://mcp.eztexting.com/mcp",
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cline-rem">Copy</button>
+</div>
+
+<h3>Local stdio — fallback</h3>
 <div class="codewrap">
 <pre><code id="code-cline">{
   "mcpServers": {
@@ -382,30 +478,13 @@ claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code><
 }</code></pre>
 <button class="copy" data-target="code-cline">Copy</button>
 </div>
-<p class="muted">Save. Cline auto-restarts the server. Refresh the MCP panel if tools don't appear.</p>
-</section>
-
-<!-- ============== WINDSURF ============== -->
-<section id="windsurf">
-<h2>Windsurf (Codeium)</h2>
-<p>Edit <code>~/.codeium/windsurf/mcp_config.json</code>:</p>
-<div class="codewrap">
-<pre><code id="code-windsurf">{
-  "mcpServers": {
-    "eztexting": {
-      "command": "npx",
-      "args": ["-y", "@eztexting/mcp-server"]
-    }
-  }
-}</code></pre>
-<button class="copy" data-target="code-windsurf">Copy</button>
-</div>
-<p>Or: <strong>Windsurf → Settings → Cascade → MCP Servers → Add</strong>. Restart.</p>
+<p class="muted">Save → Cline auto-restarts server. Refresh MCP panel if tools don't appear.</p>
 </section>
 
 <!-- ============== ZED ============== -->
 <section id="zed">
 <h2>Zed</h2>
+<p>Zed remote-MCP support is limited as of writing. Use the local stdio bridge.</p>
 <p>Open <code>~/.config/zed/settings.json</code>. Add under <code>context_servers</code>:</p>
 <div class="codewrap">
 <pre><code id="code-zed">{
@@ -424,57 +503,39 @@ claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code><
 <p class="muted">Restart Zed. Tools surface in the assistant panel.</p>
 </section>
 
-<!-- ============== CHATGPT ============== -->
-<section id="chatgpt">
-<h2>ChatGPT (remote)</h2>
-<p>ChatGPT supports remote MCP via custom connectors (Plus/Pro/Team/Enterprise — Developer mode).</p>
-<ol>
-  <li><strong>Settings → Connectors → Advanced settings</strong> → enable <strong>Developer mode</strong>.</li>
-  <li><strong>Connectors → Create</strong>.</li>
-  <li>Name: <code>EZTexting</code></li>
-  <li>MCP Server URL:
-    <div class="codewrap">
-    <pre><code id="code-gpt">https://mcp.eztexting.com/mcp</code></pre>
-    <button class="copy" data-target="code-gpt">Copy</button>
-    </div>
-  </li>
-  <li>Auth: <strong>OAuth</strong> (auto-discovered).</li>
-  <li>Save → Connect → sign in.</li>
-</ol>
-<div class="note warn">
-  Custom connectors run with full tool access. Review the tool catalog before approving destructive actions (e.g., <code>contact_delete</code>, <code>contact_group_delete</code>).
-</div>
-</section>
-
-<!-- ============== NATIVE HTTP ============== -->
-<section id="native-http">
-<h2>Native Streamable HTTP (any client)</h2>
-<p>Any client speaking the MCP Streamable HTTP transport can connect direct:</p>
-<div class="codewrap">
-<pre><code id="code-http">https://mcp.eztexting.com/mcp                    # unified — all 42 tools
-https://mcp.eztexting.com/mcp/messaging           # send/list messages, templates, conversations
-https://mcp.eztexting.com/mcp/contacts            # contacts, groups, custom fields
-https://mcp.eztexting.com/mcp/workflows           # workflow CRUD + templates
-https://mcp.eztexting.com/mcp/admin               # account, credits, webhooks, stats</code></pre>
-<button class="copy" data-target="code-http">Copy</button>
-</div>
-<p class="muted">OAuth 2.1 PKCE discovery via <code>/.well-known/oauth-authorization-server</code>. Bearer token sent as <code>Authorization: Bearer &lt;token&gt;</code>.</p>
-</section>
-
 <!-- ============== SUB-SERVERS ============== -->
 <section id="sub-servers">
 <h2>Sub-servers (narrow scopes)</h2>
 <p>Use the unified <code>/mcp</code> endpoint by default. Pick a sub-server when you want a smaller tool catalog or a separate identity.</p>
 
 <table>
-  <tr><th>Sub-server</th><th>URL</th><th>Sample tools</th></tr>
-  <tr><td><code>messaging</code></td><td><code>/mcp/messaging</code></td><td><code>message_send</code>, <code>conversation_list</code>, <code>message_template_upsert</code></td></tr>
-  <tr><td><code>contacts</code></td><td><code>/mcp/contacts</code></td><td><code>contact_upsert</code>, <code>contact_group_membership</code>, <code>contact_field_list</code></td></tr>
-  <tr><td><code>workflows</code></td><td><code>/mcp/workflows</code></td><td><code>wf_save</code>, <code>wf_create_from_template</code>, <code>wf_status</code></td></tr>
-  <tr><td><code>admin</code></td><td><code>/mcp/admin</code></td><td><code>account_details</code>, <code>buy_credits</code>, <code>webhook_create</code></td></tr>
+  <tr><th>Sub-server</th><th>Remote URL</th><th>Sample tools</th></tr>
+  <tr><td><code>messaging</code></td><td><code>https://mcp.eztexting.com/mcp/messaging</code></td><td><code>message_send</code>, <code>conversation_list</code>, <code>message_template_upsert</code></td></tr>
+  <tr><td><code>contacts</code></td><td><code>https://mcp.eztexting.com/mcp/contacts</code></td><td><code>contact_upsert</code>, <code>contact_group_membership</code>, <code>contact_field_list</code></td></tr>
+  <tr><td><code>workflows</code></td><td><code>https://mcp.eztexting.com/mcp/workflows</code></td><td><code>wf_save</code>, <code>wf_create_from_template</code>, <code>wf_status</code></td></tr>
+  <tr><td><code>admin</code></td><td><code>https://mcp.eztexting.com/mcp/admin</code></td><td><code>account_details</code>, <code>buy_credits</code>, <code>webhook_create</code></td></tr>
 </table>
 
-<h3>Stdio bridge — pin one sub-server</h3>
+<h3>Remote — pin one sub-server</h3>
+<p>Point your client at the sub-server URL directly. Example (Claude Code):</p>
+<div class="codewrap">
+<pre><code id="code-sub-rem">claude mcp add --transport http eztexting-messaging https://mcp.eztexting.com/mcp/messaging</code></pre>
+<button class="copy" data-target="code-sub-rem">Copy</button>
+</div>
+<p>Or JSON (Cursor / VS Code / Claude Desktop / Claude Code):</p>
+<div class="codewrap">
+<pre><code id="code-sub-rem-json">{
+  "mcpServers": {
+    "eztexting-messaging": {
+      "type": "http",
+      "url": "https://mcp.eztexting.com/mcp/messaging"
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-sub-rem-json">Copy</button>
+</div>
+
+<h3>Local stdio — pin one sub-server</h3>
 <div class="codewrap">
 <pre><code id="code-sub">{
   "mcpServers": {
@@ -491,20 +552,31 @@ https://mcp.eztexting.com/mcp/admin               # account, credits, webhooks, 
 <!-- ============== FIRST RUN ============== -->
 <section id="first-run">
 <h2>First run / OAuth</h2>
+
+<h3>Remote connection</h3>
+<ol>
+  <li>Client makes first request to <code>https://mcp.eztexting.com/mcp</code>.</li>
+  <li>Server returns <code>401</code> + <code>WWW-Authenticate</code> hint with discovery URL.</li>
+  <li>Client opens browser to <code>https://mcp.eztexting.com/oauth2/authorize?...</code>.</li>
+  <li>Sign in → approve scope → redirect back to client.</li>
+  <li>Client stores access + refresh tokens. Auto-refresh on expiry.</li>
+</ol>
+<p class="muted">Token storage location is client-managed (Claude.ai / ChatGPT keep tokens server-side; Claude Desktop / VS Code in OS keychain).</p>
+
+<h3>Local stdio bridge</h3>
 <ol>
   <li>Client launches <code>npx -y @eztexting/mcp-server</code>.</li>
   <li>Browser opens to <code>https://mcp.eztexting.com/oauth2/authorize?...</code>.</li>
-  <li>Sign in to EZTexting → approve scope.</li>
-  <li>Redirect back to local listener → tokens written to <code>~/.mcp-auth/mcp-remote-&lt;version&gt;/&lt;hash&gt;/</code>.</li>
+  <li>Sign in → redirect to local listener → tokens written to <code>~/.mcp-auth/mcp-remote-&lt;version&gt;/&lt;hash&gt;/</code>.</li>
   <li>Subsequent launches reuse cached tokens (auto-refresh).</li>
 </ol>
 
-<h3>Force fresh sign-in</h3>
+<h3>Force fresh sign-in (local bridge)</h3>
 <div class="codewrap">
 <pre><code id="code-reset">rm -rf ~/.mcp-auth/mcp-remote-*</code></pre>
 <button class="copy" data-target="code-reset">Copy</button>
 </div>
-<p class="muted">One <code>&lt;hash&gt;</code> directory per distinct upstream URL. Sub-server bridges and the unified bridge each get their own.</p>
+<p class="muted">One <code>&lt;hash&gt;</code> directory per distinct upstream URL. Sub-server bridges + unified bridge each get their own. For remote connections, revoke via your client's connector UI.</p>
 </section>
 
 <!-- ============== TROUBLESHOOTING ============== -->
@@ -543,11 +615,6 @@ https://mcp.eztexting.com/mcp/admin               # account, credits, webhooks, 
 </div>
 <p class="muted">Restart the client. Browser will pop again.</p>
 
-<h3>Reach support</h3>
-<ul>
-  <li>GitLab issues: <a href="https://gitlab.com/eztexting/mcp-server/-/issues" target="_blank" rel="noopener">gitlab.com/eztexting/mcp-server/-/issues</a></li>
-  <li>Email: <a href="mailto:support@eztexting.com">support@eztexting.com</a></li>
-</ul>
 </section>
 
 <!-- ============== EXAMPLES ============== -->

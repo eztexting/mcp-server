@@ -2,15 +2,25 @@
 
 mcp-name: com.eztexting/mcp
 
-Standalone MCP server bridge connecting local MCP clients (Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed) to the EZTexting MCP service at `https://mcp.eztexting.com`.
+Stdio bridge to the EZTexting MCP service at `https://mcp.eztexting.com`. Use this **only** when your client doesn't speak Streamable HTTP MCP natively.
+
+> **Prefer remote.** Most modern MCP clients (Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+) connect direct to `https://mcp.eztexting.com/mcp` — no npm, no Node, no child process. See the [onboarding guide](docs/index.html) for copy-paste configs.
 
 Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 42 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
 
-> **New here?** See the [full onboarding guide](docs/index.html) — copy-paste configs for Claude Desktop, Claude Code, Claude.ai, Cursor, VS Code, Cline, Windsurf, Zed, and ChatGPT.
+## Remote (recommended)
 
-## Install — single entry (recommended)
+Point your client at:
 
-Add to `claude_desktop_config.json` (or equivalent in Claude Code, Cursor, VS Code, Cline, Windsurf):
+```
+https://mcp.eztexting.com/mcp
+```
+
+OAuth 2.1 PKCE auto-discovers via `/.well-known/oauth-authorization-server`. See [docs/index.html](docs/index.html) for per-client snippets (Claude Desktop, Claude Code `--transport http`, Cursor, VS Code `type: http`, Windsurf, Cline).
+
+## Local stdio bridge — fallback
+
+Add to `claude_desktop_config.json` (or equivalent — only if your client lacks remote MCP support):
 
 ```json
 {
@@ -40,9 +50,9 @@ The unified `/mcp` endpoint includes all of these. Use the per-sub-server form b
 
 Tool names are exposed unprefixed; EZTexting's catalog has no cross-sub-server collisions.
 
-## Install — per sub-server (advanced)
+## Local bridge — per sub-server (advanced)
 
-Pass `--server <name>` to scope to one sub-server. Each invocation runs its own mcp-remote child:
+Pass `--server <name>` to scope to one sub-server. Each invocation runs its own mcp-remote child. Remote clients should just point at the sub-server URL directly (e.g., `https://mcp.eztexting.com/mcp/messaging`) — no flag needed.
 
 ```json
 {
@@ -61,20 +71,6 @@ Pass `--server <name>` to scope to one sub-server. Each invocation runs its own 
 
 Valid names: `messaging`, `contacts`, `workflows`, `admin`.
 
-## Native remote support
-
-Clients that speak Streamable HTTP MCP natively can connect direct, no bridge needed:
-
-```
-https://mcp.eztexting.com/mcp                    # unified, all tools
-https://mcp.eztexting.com/mcp/messaging
-https://mcp.eztexting.com/mcp/contacts
-https://mcp.eztexting.com/mcp/workflows
-https://mcp.eztexting.com/mcp/admin
-```
-
-Use the bridge only for stdio-only clients.
-
 ## Build from source
 
 ```
@@ -92,6 +88,6 @@ mcp-remote owns the auth cache: `~/.mcp-auth/mcp-remote-<version>/<serverUrlHash
 
 ## Requirements
 
-- Node.js 20+
 - EZTexting account
-- Browser available on first run (for the OAuth dance)
+- Browser available on first connect (OAuth 2.1 PKCE)
+- Node.js 20+ — **only** if using the local stdio bridge (remote clients don't need it)
