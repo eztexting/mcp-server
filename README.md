@@ -93,7 +93,3 @@ mcp-remote owns the auth cache: `~/.mcp-auth/mcp-remote-<version>/<serverUrlHash
 - Node.js 20+
 - EZTexting account
 - Browser available on first run (for the OAuth dance)
-
-## See also
-
-- [EZ MCP — full tool reference + server docs](https://eztext.atlassian.net/wiki/spaces/DR/pages/1398243331/EZ+MCP)
