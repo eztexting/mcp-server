@@ -4,7 +4,7 @@ mcp-name: com.eztexting/mcp
 
 Stdio bridge to the EZTexting MCP service at `https://mcp.eztexting.com`. Use this **only** when your client doesn't speak Streamable HTTP MCP natively.
 
-> **Prefer remote.** Most modern MCP clients (Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+) connect direct to `https://mcp.eztexting.com/mcp` — no npm, no Node, no child process. See the [onboarding guide](docs/index.html) for copy-paste configs.
+> **Prefer remote.** Most modern MCP clients (Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+) connect direct to `https://mcp.eztexting.com/mcp` — no npm, no Node, no child process. See the [onboarding guide](https://mcp.eztexting.com/) for copy-paste configs.
 
 Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 42 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
 
@@ -16,7 +16,7 @@ Point your client at:
 https://mcp.eztexting.com/mcp
 ```
 
-OAuth 2.1 PKCE auto-discovers via `/.well-known/oauth-authorization-server`. See [docs/index.html](docs/index.html) for per-client snippets (Claude Desktop, Claude Code `--transport http`, Cursor, VS Code `type: http`, Windsurf, Cline).
+OAuth 2.1 PKCE auto-discovers via `/.well-known/oauth-authorization-server`. See [https://mcp.eztexting.com/](https://mcp.eztexting.com/) for per-client snippets (Claude Desktop, Claude Code `--transport http`, Cursor, VS Code `type: http`, Windsurf, Cline).
 
 ## Local stdio bridge — fallback
 
