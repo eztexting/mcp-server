@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/eztexting/public/mcp-server.git"
+    "url": "git+https://gitlab.com/eztexting/mcp-server.git"
   },
   "homepage": "https://mcp.eztexting.com",
   "license": "MIT",

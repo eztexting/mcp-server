@@ -76,7 +76,7 @@ Use the bridge only for stdio-only clients.
 ## Build from source
 
 ```
-git clone https://gitlab.com/eztexting/public/mcp-server.git
+git clone https://gitlab.com/eztexting/mcp-server.git
 cd mcp-server
 npm install
 npm run build
