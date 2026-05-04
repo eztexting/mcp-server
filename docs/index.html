@@ -5,43 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>EZTexting MCP — Onboarding</title>
 <meta name="description" content="Connect EZTexting MCP server to Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed, ChatGPT, and any Streamable HTTP MCP client." />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* EZTexting brand palette */
+  /* spa.eztexting.com palette — Material Indigo, single balanced theme */
   :root {
-    --brand-navy: #020133;
-    --brand-navy-2: #0a0a52;
-    --brand-orange: rgb(241,147,0);
-    --brand-gold: rgb(252,184,19);
-    --brand-gradient: linear-gradient(90deg, var(--brand-orange) 0%, var(--brand-gold) 100%);
+    --primary:       #3f51b5;  /* Indigo 500 — buttons, links, accents */
+    --primary-dark:  #1a237e;  /* Indigo 900 — hover, code text */
+    --primary-mid:   #3949ab;  /* Indigo 700 */
+    --primary-light: #7986cb;  /* Indigo 300 */
+    --accent:        #ff4081;  /* Pink A200 */
+    --success:       #46a35e;
+    --warn:          #f44336;  /* Red 500 */
 
-    --bg: #ffffff;
-    --panel: #ffffff;
-    --panel-2: #f5f5f5;
-    --text: #4e4e4b;
-    --heading: var(--brand-navy);
-    --muted: #8E8E8E;
-    --accent: var(--brand-orange);
-    --accent-2: var(--brand-navy);
-    --border: #EBEBEB;
-    --code-bg: var(--brand-navy);
-    --code-text: #f5f5f5;
-    --warn: #f19300;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #020133;
-      --panel: #0a0a52;
-      --panel-2: #11116b;
-      --text: #e8e8ec;
-      --heading: #ffffff;
-      --muted: #BEBEBE;
-      --accent: var(--brand-gold);
-      --accent-2: var(--brand-orange);
-      --border: #1a1a7a;
-      --code-bg: #00001f;
-      --code-text: #f5f5f5;
-      --warn: var(--brand-gold);
-    }
+    --bg:       #eeeeee;       /* Grey 200 — page bg, neither extreme */
+    --panel:    #fafafa;       /* Grey 50 — cards, lifted surfaces */
+    --panel-2:  #e0e0e0;       /* Grey 300 — alt surface, table head */
+    --text:     #424242;       /* Grey 800 — body */
+    --heading:  #212121;       /* Grey 900 — headings */
+    --muted:    #757575;       /* Grey 600 */
+    --border:   #bdbdbd;       /* Grey 400 */
+    --code-bg:  #fafafa;
+    --code-text: #1a237e;
+    --code-border: #bdbdbd;
+    --shadow:        rgba(33,33,33,0.06);
+    --shadow-hover:  rgba(63,81,181,0.18);
   }
   * { box-sizing: border-box; }
   html, body {
@@ -49,9 +37,10 @@
     padding: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.55;
+    font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
     font-size: 16px;
+    -webkit-font-smoothing: antialiased;
   }
   .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
   header {
@@ -62,37 +51,37 @@
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .logo {
-    width: 42px; height: 42px; border-radius: 10px;
-    background: var(--brand-gradient);
+    width: 42px; height: 42px; border-radius: 8px;
+    background: var(--primary);
     display: grid; place-items: center;
-    color: var(--brand-navy); font-weight: 800; font-size: 14px;
-    box-shadow: 0 2px 8px rgba(241,147,0,0.3);
+    color: #ffffff; font-weight: 900; font-size: 14px;
+    box-shadow: 0 2px 4px var(--shadow-hover);
   }
-  h1 { margin: 0; font-size: 22px; letter-spacing: -0.2px; color: var(--heading); font-weight: 700; }
+  h1 { margin: 0; font-size: 22px; letter-spacing: -0.2px; color: var(--heading); font-weight: 900; }
   .sub { color: var(--muted); font-size: 14px; }
   .pill {
     display: inline-block; padding: 4px 12px; border-radius: 999px;
-    background: var(--brand-gradient); color: var(--brand-navy);
-    font-size: 12px; font-weight: 600;
+    background: var(--primary); color: #ffffff;
+    font-size: 12px; font-weight: 700;
     border: none;
   }
   h2 {
     font-size: 20px; margin: 36px 0 10px;
-    padding-bottom: 6px; border-bottom: 2px solid var(--brand-orange);
-    color: var(--heading); font-weight: 700;
+    padding-bottom: 6px; border-bottom: 2px solid var(--primary);
+    color: var(--heading); font-weight: 900;
   }
-  h3 { font-size: 16px; margin: 22px 0 8px; color: var(--heading); font-weight: 600; }
+  h3 { font-size: 16px; margin: 22px 0 8px; color: var(--heading); font-weight: 700; }
   p { margin: 8px 0; color: var(--text); }
   .muted { color: var(--muted); }
-  a { color: var(--brand-orange); text-decoration: none; font-weight: 500; }
-  a:hover { text-decoration: underline; color: var(--brand-gold); }
+  a { color: var(--primary); text-decoration: none; font-weight: 700; }
+  a:hover { text-decoration: underline; color: var(--primary-dark); }
   ul, ol { margin: 8px 0 8px 22px; }
   li { margin: 4px 0; }
 
   .toc {
-    background: var(--panel-2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px;
-    border-left: 4px solid var(--brand-orange);
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;
+    border-left: 4px solid var(--primary);
   }
   .toc strong { color: var(--heading); }
   .toc ul { columns: 2; margin: 4px 0 0 18px; }
@@ -100,8 +89,8 @@
 
   .card {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px; margin: 14px 0;
-    box-shadow: 0 1px 3px rgba(2,1,51,0.04);
+    border-radius: 8px; padding: 18px; margin: 14px 0;
+    box-shadow: 0 1px 3px var(--shadow);
   }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
@@ -109,57 +98,64 @@
   .codewrap { position: relative; margin: 10px 0; }
   pre {
     background: var(--code-bg); color: var(--code-text);
-    padding: 14px 14px; border-radius: 10px; overflow-x: auto;
+    padding: 14px 14px; border-radius: 8px; overflow-x: auto;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 13.5px; line-height: 1.5; margin: 0;
-    border: 1px solid var(--brand-navy);
+    border: 1px solid var(--code-border);
   }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
-  p code, li code { background: var(--panel-2); color: var(--brand-navy); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); }
-  @media (prefers-color-scheme: dark) {
-    p code, li code { color: var(--brand-gold); }
+  p code, li code, td code {
+    background: var(--code-bg); color: var(--code-text);
+    padding: 2px 6px; border-radius: 4px;
+    border: 1px solid var(--code-border); font-weight: 700;
   }
   .copy {
     position: absolute; top: 8px; right: 8px;
-    background: var(--brand-gradient); color: var(--brand-navy);
-    border: none; border-radius: 6px;
-    padding: 5px 11px; font-size: 12px; font-weight: 600; cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
+    background: var(--primary); color: #ffffff;
+    border: none; border-radius: 4px;
+    padding: 5px 11px; font-size: 12px; font-weight: 700; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    transition: background 0.15s, box-shadow 0.15s;
   }
-  .copy:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(241,147,0,0.4); }
-  .copy.ok { background: var(--brand-navy); color: var(--brand-gold); }
+  .copy:hover { background: var(--primary-dark); box-shadow: 0 2px 6px var(--shadow-hover); }
+  .copy.ok { background: var(--success); }
 
-  table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; background: var(--panel); border-radius: 6px; overflow: hidden; }
   th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
   th { color: var(--heading); font-weight: 700; background: var(--panel-2); }
+  tr:last-child td { border-bottom: none; }
 
   .note {
-    border-left: 4px solid var(--brand-orange);
-    background: var(--panel-2); padding: 10px 14px;
-    border-radius: 0 8px 8px 0; margin: 10px 0;
+    border-left: 4px solid var(--primary);
+    background: var(--panel); padding: 10px 14px;
+    border-radius: 0 6px 6px 0; margin: 10px 0;
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
-  .warn { border-left-color: var(--warn); background: rgba(252,184,19,0.1); }
+  .warn { border-left-color: var(--warn); background: #fafafa; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
   .tile {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px 16px;
-    border-top: 3px solid var(--brand-orange);
-    transition: transform 0.15s, box-shadow 0.15s;
+    border-radius: 8px; padding: 14px 16px;
+    border-top: 3px solid var(--primary);
+    transition: transform 0.15s, box-shadow 0.15s, border-top-color 0.15s;
   }
-  .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(2,1,51,0.08); }
-  .tile strong { color: var(--heading); display: block; margin-bottom: 4px; }
-  .tile a { display: block; font-weight: 600; }
+  .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow-hover); border-top-color: var(--primary-dark); }
+  .tile strong { color: var(--heading); display: block; margin-bottom: 4px; font-weight: 700; }
+  .tile a { display: block; font-weight: 700; }
   .tile small { color: var(--muted); }
 
   footer {
-    margin-top: 50px; padding: 24px 18px;
-    background: var(--brand-navy); color: #BEBEBE;
-    border-radius: 12px;
+    margin-top: 50px; padding: 22px 18px;
+    background: var(--panel); color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 13px; text-align: center;
   }
-  footer a { color: var(--brand-gold); }
-  footer a:hover { color: #ffffff; }
+  footer a { color: var(--primary); font-weight: 700; }
+  footer a:hover { color: var(--primary-dark); }
 </style>
 </head>
 <body>
