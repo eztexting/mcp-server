@@ -6,6 +6,8 @@ Standalone MCP server bridge connecting local MCP clients (Claude Desktop, Claud
 
 Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 42 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
 
+> **New here?** See the [full onboarding guide](docs/index.html) — copy-paste configs for Claude Desktop, Claude Code, Claude.ai, Cursor, VS Code, Cline, Windsurf, Zed, and ChatGPT.
+
 ## Install — single entry (recommended)
 
 Add to `claude_desktop_config.json` (or equivalent in Claude Code, Cursor, VS Code, Cline, Windsurf):

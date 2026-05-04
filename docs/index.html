@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EZTexting MCP — Onboarding</title>
+<meta name="description" content="Connect EZTexting MCP server to Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed, ChatGPT, and any Streamable HTTP MCP client." />
+<style>
+  /* EZTexting brand palette */
+  :root {
+    --brand-navy: #020133;
+    --brand-navy-2: #0a0a52;
+    --brand-orange: rgb(241,147,0);
+    --brand-gold: rgb(252,184,19);
+    --brand-gradient: linear-gradient(90deg, var(--brand-orange) 0%, var(--brand-gold) 100%);
+
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel-2: #f5f5f5;
+    --text: #4e4e4b;
+    --heading: var(--brand-navy);
+    --muted: #8E8E8E;
+    --accent: var(--brand-orange);
+    --accent-2: var(--brand-navy);
+    --border: #EBEBEB;
+    --code-bg: var(--brand-navy);
+    --code-text: #f5f5f5;
+    --warn: #f19300;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #020133;
+      --panel: #0a0a52;
+      --panel-2: #11116b;
+      --text: #e8e8ec;
+      --heading: #ffffff;
+      --muted: #BEBEBE;
+      --accent: var(--brand-gold);
+      --accent-2: var(--brand-orange);
+      --border: #1a1a7a;
+      --code-bg: #00001f;
+      --code-text: #f5f5f5;
+      --warn: var(--brand-gold);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px; margin-bottom: 28px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--brand-gradient);
+    display: grid; place-items: center;
+    color: var(--brand-navy); font-weight: 800; font-size: 14px;
+    box-shadow: 0 2px 8px rgba(241,147,0,0.3);
+  }
+  h1 { margin: 0; font-size: 22px; letter-spacing: -0.2px; color: var(--heading); font-weight: 700; }
+  .sub { color: var(--muted); font-size: 14px; }
+  .pill {
+    display: inline-block; padding: 4px 12px; border-radius: 999px;
+    background: var(--brand-gradient); color: var(--brand-navy);
+    font-size: 12px; font-weight: 600;
+    border: none;
+  }
+  h2 {
+    font-size: 20px; margin: 36px 0 10px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--brand-orange);
+    color: var(--heading); font-weight: 700;
+  }
+  h3 { font-size: 16px; margin: 22px 0 8px; color: var(--heading); font-weight: 600; }
+  p { margin: 8px 0; color: var(--text); }
+  .muted { color: var(--muted); }
+  a { color: var(--brand-orange); text-decoration: none; font-weight: 500; }
+  a:hover { text-decoration: underline; color: var(--brand-gold); }
+  ul, ol { margin: 8px 0 8px 22px; }
+  li { margin: 4px 0; }
+
+  .toc {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px;
+    border-left: 4px solid var(--brand-orange);
+  }
+  .toc strong { color: var(--heading); }
+  .toc ul { columns: 2; margin: 4px 0 0 18px; }
+  @media (max-width: 640px) { .toc ul { columns: 1; } }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin: 14px 0;
+    box-shadow: 0 1px 3px rgba(2,1,51,0.04);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+
+  .codewrap { position: relative; margin: 10px 0; }
+  pre {
+    background: var(--code-bg); color: var(--code-text);
+    padding: 14px 14px; border-radius: 10px; overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13.5px; line-height: 1.5; margin: 0;
+    border: 1px solid var(--brand-navy);
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+  p code, li code { background: var(--panel-2); color: var(--brand-navy); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); }
+  @media (prefers-color-scheme: dark) {
+    p code, li code { color: var(--brand-gold); }
+  }
+  .copy {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--brand-gradient); color: var(--brand-navy);
+    border: none; border-radius: 6px;
+    padding: 5px 11px; font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .copy:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(241,147,0,0.4); }
+  .copy.ok { background: var(--brand-navy); color: var(--brand-gold); }
+
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--heading); font-weight: 700; background: var(--panel-2); }
+
+  .note {
+    border-left: 4px solid var(--brand-orange);
+    background: var(--panel-2); padding: 10px 14px;
+    border-radius: 0 8px 8px 0; margin: 10px 0;
+  }
+  .warn { border-left-color: var(--warn); background: rgba(252,184,19,0.1); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+  .tile {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    border-top: 3px solid var(--brand-orange);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(2,1,51,0.08); }
+  .tile strong { color: var(--heading); display: block; margin-bottom: 4px; }
+  .tile a { display: block; font-weight: 600; }
+  .tile small { color: var(--muted); }
+
+  footer {
+    margin-top: 50px; padding: 24px 18px;
+    background: var(--brand-navy); color: #BEBEBE;
+    border-radius: 12px;
+    font-size: 13px; text-align: center;
+  }
+  footer a { color: var(--brand-gold); }
+  footer a:hover { color: #ffffff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="logo">EZ</div>
+    <div>
+      <h1>EZTexting MCP — Onboarding</h1>
+      <div class="sub">Connect any MCP client to <code>mcp.eztexting.com</code></div>
+    </div>
+  </div>
+  <span class="pill">v0.3.0 · com.eztexting/mcp</span>
+</header>
+
+<div class="toc card">
+  <strong>Quick jump</strong>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#prereqs">Prerequisites</a></li>
+    <li><a href="#claude-desktop">Claude Desktop</a></li>
+    <li><a href="#claude-code">Claude Code</a></li>
+    <li><a href="#claude-web">Claude.ai (remote)</a></li>
+    <li><a href="#cursor">Cursor</a></li>
+    <li><a href="#vscode">VS Code</a></li>
+    <li><a href="#cline">Cline</a></li>
+    <li><a href="#windsurf">Windsurf</a></li>
+    <li><a href="#zed">Zed</a></li>
+    <li><a href="#chatgpt">ChatGPT (remote)</a></li>
+    <li><a href="#native-http">Native Streamable HTTP</a></li>
+    <li><a href="#sub-servers">Sub-servers</a></li>
+    <li><a href="#first-run">First run / OAuth</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#examples">Example prompts</a></li>
+  </ul>
+</div>
+
+<section id="overview">
+<h2>Overview</h2>
+<p>
+EZTexting MCP exposes 42 tools — send SMS/MMS, manage contacts and groups, run workflows, fetch reports, manage webhooks, query account state.
+There are two ways to connect:
+</p>
+<div class="row">
+  <div class="card">
+    <h3>Local stdio bridge</h3>
+    <p class="muted">For clients that only speak stdio MCP (Claude Desktop, Claude Code, Cursor, VS Code, Cline, Windsurf, Zed).</p>
+    <p>Runs <code>npx -y @eztexting/mcp-server</code> as a child process. Browser pops on first run for OAuth. Tokens cached in <code>~/.mcp-auth/</code>.</p>
+  </div>
+  <div class="card">
+    <h3>Native Streamable HTTP</h3>
+    <p class="muted">For clients that speak remote MCP directly (Claude.ai web, ChatGPT custom connectors, future-native clients).</p>
+    <p>Point straight at <code>https://mcp.eztexting.com/mcp</code>. No npm, no Node, no bridge.</p>
+  </div>
+</div>
+</section>
+
+<section id="prereqs">
+<h2>Prerequisites</h2>
+<ul>
+  <li><strong>EZTexting account</strong> — sign in at <a href="https://app.eztexting.com" target="_blank" rel="noopener">app.eztexting.com</a>.</li>
+  <li><strong>Node.js 20+</strong> — only for local stdio bridge. Verify: <code>node -v</code>.</li>
+  <li><strong>Browser</strong> — first run pops OAuth 2.1 PKCE flow.</li>
+</ul>
+</section>
+
+<!-- ============== CLAUDE DESKTOP ============== -->
+<section id="claude-desktop">
+<h2>Claude Desktop (local)</h2>
+<p>Edit your config file, then fully quit + relaunch Claude Desktop.</p>
+
+<h3>Config file location</h3>
+<table>
+  <tr><th>OS</th><th>Path</th></tr>
+  <tr><td>macOS</td><td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td></tr>
+  <tr><td>Windows</td><td><code>%APPDATA%\Claude\claude_desktop_config.json</code></td></tr>
+  <tr><td>Linux</td><td><code>~/.config/Claude/claude_desktop_config.json</code></td></tr>
+</table>
+
+<h3>Config (unified — all 42 tools)</h3>
+<div class="codewrap">
+<pre><code id="code-cd">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cd">Copy</button>
+</div>
+<p class="muted">Verify: open Claude Desktop → Settings → Developer → MCP Servers. <code>eztexting</code> should be listed and "running".</p>
+</section>
+
+<!-- ============== CLAUDE CODE ============== -->
+<section id="claude-code">
+<h2>Claude Code (local CLI)</h2>
+<p>Two ways: CLI command or edit settings JSON.</p>
+
+<h3>CLI (recommended)</h3>
+<div class="codewrap">
+<pre><code id="code-cc1">claude mcp add eztexting -- npx -y @eztexting/mcp-server</code></pre>
+<button class="copy" data-target="code-cc1">Copy</button>
+</div>
+<p>Scope to user (global) or project:</p>
+<div class="codewrap">
+<pre><code id="code-cc2">claude mcp add --scope user eztexting -- npx -y @eztexting/mcp-server
+claude mcp add --scope project eztexting -- npx -y @eztexting/mcp-server</code></pre>
+<button class="copy" data-target="code-cc2">Copy</button>
+</div>
+
+<h3>Manual config</h3>
+<p>Edit <code>~/.claude.json</code> (user scope) or <code>.mcp.json</code> in repo root (project scope):</p>
+<div class="codewrap">
+<pre><code id="code-cc3">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cc3">Copy</button>
+</div>
+<p class="muted">Verify: <code>claude mcp list</code></p>
+</section>
+
+<!-- ============== CLAUDE.AI WEB ============== -->
+<section id="claude-web">
+<h2>Claude.ai (remote, no install)</h2>
+<p>Claude.ai supports remote MCP servers via the Connectors UI. No bridge, no Node.</p>
+<ol>
+  <li>Go to <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai → Settings → Connectors</a>.</li>
+  <li>Click <strong>Add custom connector</strong>.</li>
+  <li>Name: <code>EZTexting</code></li>
+  <li>URL:
+    <div class="codewrap">
+    <pre><code id="code-web">https://mcp.eztexting.com/mcp</code></pre>
+    <button class="copy" data-target="code-web">Copy</button>
+    </div>
+  </li>
+  <li>Save → Click <strong>Connect</strong> → OAuth pop-up → sign in.</li>
+</ol>
+<p class="muted">Available on Pro / Team / Enterprise plans.</p>
+</section>
+
+<!-- ============== CURSOR ============== -->
+<section id="cursor">
+<h2>Cursor (local)</h2>
+<p>Edit <code>~/.cursor/mcp.json</code> (global) or <code>.cursor/mcp.json</code> in your project:</p>
+<div class="codewrap">
+<pre><code id="code-cursor">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cursor">Copy</button>
+</div>
+<p>Or: <strong>Cursor → Settings → MCP → Add new MCP server</strong>. Restart Cursor.</p>
+<p class="muted">Cursor 0.46+ also supports remote MCP. Use URL <code>https://mcp.eztexting.com/mcp</code> with <code>"type": "http"</code>.</p>
+</section>
+
+<!-- ============== VS CODE ============== -->
+<section id="vscode">
+<h2>VS Code (GitHub Copilot Chat — Agent Mode)</h2>
+<p>VS Code 1.99+ supports MCP natively in Copilot Chat agent mode.</p>
+
+<h3>User config</h3>
+<p>Command palette → <code>MCP: Open User Configuration</code>. Add:</p>
+<div class="codewrap">
+<pre><code id="code-vsc1">{
+  "servers": {
+    "eztexting": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-vsc1">Copy</button>
+</div>
+
+<h3>Workspace config</h3>
+<p>Create <code>.vscode/mcp.json</code> in repo root (same shape).</p>
+
+<h3>Remote variant (no Node needed)</h3>
+<div class="codewrap">
+<pre><code id="code-vsc2">{
+  "servers": {
+    "eztexting": {
+      "type": "http",
+      "url": "https://mcp.eztexting.com/mcp"
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-vsc2">Copy</button>
+</div>
+<p class="muted">Open Copilot Chat → switch to <strong>Agent</strong> mode → tools list now shows <code>eztexting</code>.</p>
+</section>
+
+<!-- ============== CLINE ============== -->
+<section id="cline">
+<h2>Cline (VS Code extension)</h2>
+<ol>
+  <li>Open Cline panel in VS Code.</li>
+  <li>Click the <strong>MCP Servers</strong> icon (top of panel).</li>
+  <li>Click <strong>Configure MCP Servers</strong> → opens <code>cline_mcp_settings.json</code>.</li>
+  <li>Add:</li>
+</ol>
+<div class="codewrap">
+<pre><code id="code-cline">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-cline">Copy</button>
+</div>
+<p class="muted">Save. Cline auto-restarts the server. Refresh the MCP panel if tools don't appear.</p>
+</section>
+
+<!-- ============== WINDSURF ============== -->
+<section id="windsurf">
+<h2>Windsurf (Codeium)</h2>
+<p>Edit <code>~/.codeium/windsurf/mcp_config.json</code>:</p>
+<div class="codewrap">
+<pre><code id="code-windsurf">{
+  "mcpServers": {
+    "eztexting": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-windsurf">Copy</button>
+</div>
+<p>Or: <strong>Windsurf → Settings → Cascade → MCP Servers → Add</strong>. Restart.</p>
+</section>
+
+<!-- ============== ZED ============== -->
+<section id="zed">
+<h2>Zed</h2>
+<p>Open <code>~/.config/zed/settings.json</code>. Add under <code>context_servers</code>:</p>
+<div class="codewrap">
+<pre><code id="code-zed">{
+  "context_servers": {
+    "eztexting": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "@eztexting/mcp-server"]
+      },
+      "settings": {}
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-zed">Copy</button>
+</div>
+<p class="muted">Restart Zed. Tools surface in the assistant panel.</p>
+</section>
+
+<!-- ============== CHATGPT ============== -->
+<section id="chatgpt">
+<h2>ChatGPT (remote)</h2>
+<p>ChatGPT supports remote MCP via custom connectors (Plus/Pro/Team/Enterprise — Developer mode).</p>
+<ol>
+  <li><strong>Settings → Connectors → Advanced settings</strong> → enable <strong>Developer mode</strong>.</li>
+  <li><strong>Connectors → Create</strong>.</li>
+  <li>Name: <code>EZTexting</code></li>
+  <li>MCP Server URL:
+    <div class="codewrap">
+    <pre><code id="code-gpt">https://mcp.eztexting.com/mcp</code></pre>
+    <button class="copy" data-target="code-gpt">Copy</button>
+    </div>
+  </li>
+  <li>Auth: <strong>OAuth</strong> (auto-discovered).</li>
+  <li>Save → Connect → sign in.</li>
+</ol>
+<div class="note warn">
+  Custom connectors run with full tool access. Review the tool catalog before approving destructive actions (e.g., <code>contact_delete</code>, <code>contact_group_delete</code>).
+</div>
+</section>
+
+<!-- ============== NATIVE HTTP ============== -->
+<section id="native-http">
+<h2>Native Streamable HTTP (any client)</h2>
+<p>Any client speaking the MCP Streamable HTTP transport can connect direct:</p>
+<div class="codewrap">
+<pre><code id="code-http">https://mcp.eztexting.com/mcp                    # unified — all 42 tools
+https://mcp.eztexting.com/mcp/messaging           # send/list messages, templates, conversations
+https://mcp.eztexting.com/mcp/contacts            # contacts, groups, custom fields
+https://mcp.eztexting.com/mcp/workflows           # workflow CRUD + templates
+https://mcp.eztexting.com/mcp/admin               # account, credits, webhooks, stats</code></pre>
+<button class="copy" data-target="code-http">Copy</button>
+</div>
+<p class="muted">OAuth 2.1 PKCE discovery via <code>/.well-known/oauth-authorization-server</code>. Bearer token sent as <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+</section>
+
+<!-- ============== SUB-SERVERS ============== -->
+<section id="sub-servers">
+<h2>Sub-servers (narrow scopes)</h2>
+<p>Use the unified <code>/mcp</code> endpoint by default. Pick a sub-server when you want a smaller tool catalog or a separate identity.</p>
+
+<table>
+  <tr><th>Sub-server</th><th>URL</th><th>Sample tools</th></tr>
+  <tr><td><code>messaging</code></td><td><code>/mcp/messaging</code></td><td><code>message_send</code>, <code>conversation_list</code>, <code>message_template_upsert</code></td></tr>
+  <tr><td><code>contacts</code></td><td><code>/mcp/contacts</code></td><td><code>contact_upsert</code>, <code>contact_group_membership</code>, <code>contact_field_list</code></td></tr>
+  <tr><td><code>workflows</code></td><td><code>/mcp/workflows</code></td><td><code>wf_save</code>, <code>wf_create_from_template</code>, <code>wf_status</code></td></tr>
+  <tr><td><code>admin</code></td><td><code>/mcp/admin</code></td><td><code>account_details</code>, <code>buy_credits</code>, <code>webhook_create</code></td></tr>
+</table>
+
+<h3>Stdio bridge — pin one sub-server</h3>
+<div class="codewrap">
+<pre><code id="code-sub">{
+  "mcpServers": {
+    "eztexting-messaging": {
+      "command": "npx",
+      "args": ["-y", "@eztexting/mcp-server", "--server", "messaging"]
+    }
+  }
+}</code></pre>
+<button class="copy" data-target="code-sub">Copy</button>
+</div>
+</section>
+
+<!-- ============== FIRST RUN ============== -->
+<section id="first-run">
+<h2>First run / OAuth</h2>
+<ol>
+  <li>Client launches <code>npx -y @eztexting/mcp-server</code>.</li>
+  <li>Browser opens to <code>https://mcp.eztexting.com/oauth2/authorize?...</code>.</li>
+  <li>Sign in to EZTexting → approve scope.</li>
+  <li>Redirect back to local listener → tokens written to <code>~/.mcp-auth/mcp-remote-&lt;version&gt;/&lt;hash&gt;/</code>.</li>
+  <li>Subsequent launches reuse cached tokens (auto-refresh).</li>
+</ol>
+
+<h3>Force fresh sign-in</h3>
+<div class="codewrap">
+<pre><code id="code-reset">rm -rf ~/.mcp-auth/mcp-remote-*</code></pre>
+<button class="copy" data-target="code-reset">Copy</button>
+</div>
+<p class="muted">One <code>&lt;hash&gt;</code> directory per distinct upstream URL. Sub-server bridges and the unified bridge each get their own.</p>
+</section>
+
+<!-- ============== TROUBLESHOOTING ============== -->
+<section id="troubleshooting">
+<h2>Troubleshooting</h2>
+
+<h3>Server won't start</h3>
+<ul>
+  <li><code>node -v</code> &mdash; need 20+.</li>
+  <li>Test the bridge directly:
+    <div class="codewrap">
+    <pre><code id="code-test">npx -y @eztexting/mcp-server</code></pre>
+    <button class="copy" data-target="code-test">Copy</button>
+    </div>
+  </li>
+  <li>Behind proxy? Set <code>HTTPS_PROXY</code> in the client's MCP env block.</li>
+</ul>
+
+<h3>Browser never opens</h3>
+<ul>
+  <li>Check default browser is set.</li>
+  <li>Headless / SSH session: copy the printed URL into a browser on a workstation that can reach <code>localhost:&lt;port&gt;</code> on the same machine.</li>
+</ul>
+
+<h3>Tools not visible</h3>
+<ul>
+  <li>Fully quit + relaunch the client (Claude Desktop &amp; Cursor cache server lists).</li>
+  <li>Check the client's MCP log panel.</li>
+  <li>Confirm OAuth completed: directory exists under <code>~/.mcp-auth/</code>.</li>
+</ul>
+
+<h3>401 / token expired</h3>
+<div class="codewrap">
+<pre><code id="code-401">rm -rf ~/.mcp-auth/mcp-remote-*</code></pre>
+<button class="copy" data-target="code-401">Copy</button>
+</div>
+<p class="muted">Restart the client. Browser will pop again.</p>
+
+<h3>Reach support</h3>
+<ul>
+  <li>GitLab issues: <a href="https://gitlab.com/eztexting/mcp-server/-/issues" target="_blank" rel="noopener">gitlab.com/eztexting/mcp-server/-/issues</a></li>
+  <li>Email: <a href="mailto:support@eztexting.com">support@eztexting.com</a></li>
+</ul>
+</section>
+
+<!-- ============== EXAMPLES ============== -->
+<section id="examples">
+<h2>Example prompts</h2>
+
+<div class="grid">
+  <div class="tile">
+    <strong>Send SMS</strong>
+    <p class="muted">"Send 'Order shipped — track at ez.tx/abc' to +15555550123."</p>
+    <small>uses <code>message_send</code></small>
+  </div>
+  <div class="tile">
+    <strong>Bulk import</strong>
+    <p class="muted">"Add these 50 contacts to group 'VIP-2026' from contacts.csv."</p>
+    <small>uses <code>contact_upsert</code>, <code>contact_group_membership</code></small>
+  </div>
+  <div class="tile">
+    <strong>Drip workflow</strong>
+    <p class="muted">"Create a 3-step drip from the 'Welcome' template, send Day 0/3/7."</p>
+    <small>uses <code>wf_create_from_template</code>, <code>wf_save</code></small>
+  </div>
+  <div class="tile">
+    <strong>Reporting</strong>
+    <p class="muted">"How many messages did we send last week, broken out by day?"</p>
+    <small>uses <code>msg_stat</code>, <code>message_report_get</code></small>
+  </div>
+  <div class="tile">
+    <strong>Webhooks</strong>
+    <p class="muted">"Register a webhook at https://my.app/ez for incoming replies."</p>
+    <small>uses <code>webhook_create</code></small>
+  </div>
+  <div class="tile">
+    <strong>Inbox triage</strong>
+    <p class="muted">"List unread conversations and summarize the top 5."</p>
+    <small>uses <code>conversation_list</code>, <code>conversation_messages</code></small>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p>
+    EZTexting MCP server &middot;
+    <a href="https://gitlab.com/eztexting/mcp-server" target="_blank" rel="noopener">Source</a> &middot;
+    <a href="https://www.npmjs.com/package/@eztexting/mcp-server" target="_blank" rel="noopener">npm</a> &middot;
+    <a href="https://registry.modelcontextprotocol.io/v0.1/servers/com.eztexting%2Fmcp/versions/0.3.0" target="_blank" rel="noopener">MCP Registry</a>
+  </p>
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-target');
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = el.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('ok'); }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>
