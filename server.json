@@ -3,8 +3,19 @@
   "name": "com.eztexting/mcp",
   "description": "Official EZTexting MCP server: SMS/MMS messaging, contacts, workflows, reports.",
   "title": "EZTexting MCP",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://mcp.eztexting.com",
+  "_meta": {
+    "com.eztexting/sub-endpoints": {
+      "description": "Narrow tool-catalog endpoints. Same OAuth scope as unified /mcp.",
+      "endpoints": {
+        "messaging": "https://mcp.eztexting.com/mcp/messaging",
+        "contacts":  "https://mcp.eztexting.com/mcp/contacts",
+        "workflows": "https://mcp.eztexting.com/mcp/workflows",
+        "admin":     "https://mcp.eztexting.com/mcp/admin"
+      }
+    }
+  },
   "icons": [
     {
       "src": "https://www.eztexting.com/themes/custom/ezevo/apple-touch-icon.png",
@@ -30,15 +41,18 @@
     {
       "registryType": "npm",
       "identifier": "@eztexting/mcp-server",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
+        { "type": "positional", "valueHint": "yes-flag", "value": "-y" },
         {
           "type": "named",
           "name": "--server",
-          "description": "Optional: connect to a single sub-server only (messaging | contacts | workflows | admin). Default: unified endpoint with all tools.",
-          "isRequired": false
+          "description": "Optional: connect to a single sub-server only. Default: unified endpoint with all tools.",
+          "isRequired": false,
+          "format": "string",
+          "choices": ["messaging", "contacts", "workflows", "admin"]
         }
       ]
     }
