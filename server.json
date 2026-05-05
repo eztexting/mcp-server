@@ -3,16 +3,18 @@
   "name": "com.eztexting/mcp",
   "description": "Official EZTexting MCP server: SMS/MMS messaging, contacts, workflows, reports.",
   "title": "EZTexting MCP",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "websiteUrl": "https://mcp.eztexting.com",
   "_meta": {
-    "com.eztexting/sub-endpoints": {
-      "description": "Narrow tool-catalog endpoints. Same OAuth scope as unified /mcp.",
-      "endpoints": {
-        "messaging": "https://mcp.eztexting.com/mcp/messaging",
-        "contacts":  "https://mcp.eztexting.com/mcp/contacts",
-        "workflows": "https://mcp.eztexting.com/mcp/workflows",
-        "admin":     "https://mcp.eztexting.com/mcp/admin"
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "com.eztexting/sub-endpoints": {
+        "description": "Narrow tool-catalog endpoints. Same OAuth scope as unified /mcp.",
+        "endpoints": {
+          "messaging": "https://mcp.eztexting.com/mcp/messaging",
+          "contacts":  "https://mcp.eztexting.com/mcp/contacts",
+          "workflows": "https://mcp.eztexting.com/mcp/workflows",
+          "admin":     "https://mcp.eztexting.com/mcp/admin"
+        }
       }
     }
   },
@@ -41,7 +43,7 @@
     {
       "registryType": "npm",
       "identifier": "@eztexting/mcp-server",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
