@@ -2,7 +2,26 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.eztexting/mcp",
   "description": "Official EZTexting MCP server: SMS/MMS messaging, contacts, workflows, and account administration.",
-  "version": "0.3.0",
+  "title": "EZTexting MCP",
+  "version": "1.0.1",
+  "websiteUrl": "https://mcp.eztexting.com",
+  "icons": [
+    {
+      "src": "https://www.eztexting.com/themes/custom/ezevo/apple-touch-icon.png",
+      "mimeType": "image/png",
+      "sizes": ["180x180"]
+    },
+    {
+      "src": "https://www.eztexting.com/themes/custom/ezevo/favicon-96x96.png",
+      "mimeType": "image/png",
+      "sizes": ["96x96"]
+    },
+    {
+      "src": "https://www.eztexting.com/themes/custom/ezevo/safari-pinned-tab.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": ["any"]
+    }
+  ],
   "repository": {
     "url": "https://gitlab.com/eztexting/mcp-server",
     "source": "gitlab"
@@ -11,7 +30,7 @@
     {
       "registryType": "npm",
       "identifier": "@eztexting/mcp-server",
-      "version": "0.3.0",
+      "version": "1.0.1",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
@@ -25,10 +44,6 @@
     }
   ],
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp" },
-    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/messaging" },
-    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/contacts" },
-    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/workflows" },
-    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp/admin" }
+    { "type": "streamable-http", "url": "https://mcp.eztexting.com/mcp" }
   ]
 }
