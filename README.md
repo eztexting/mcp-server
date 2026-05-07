@@ -74,7 +74,7 @@ Valid names: `messaging`, `contacts`, `workflows`, `admin`.
 ## Build from source
 
 ```
-git clone https://gitlab.com/eztexting/mcp-server.git
+git clone https://github.com/eztexting/mcp-server.git
 cd mcp-server
 npm install
 npm run build

@@ -1,6 +1,6 @@
 {
   "name": "@eztexting/mcp-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Official EZTexting MCP server bridge — connects local MCP clients to https://mcp.eztexting.com via Streamable HTTP + OAuth 2.1 PKCE.",
   "mcpName": "com.eztexting/mcp",
   "type": "module",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/eztexting/mcp-server.git"
+    "url": "git+https://github.com/eztexting/mcp-server.git"
   },
   "homepage": "https://mcp.eztexting.com",
   "license": "MIT",

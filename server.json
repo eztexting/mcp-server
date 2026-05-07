@@ -3,7 +3,7 @@
   "name": "com.eztexting/mcp",
   "description": "Official EZTexting MCP server: SMS/MMS messaging, contacts, workflows, reports.",
   "title": "EZTexting MCP",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "websiteUrl": "https://mcp.eztexting.com",
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
@@ -36,14 +36,14 @@
     }
   ],
   "repository": {
-    "url": "https://gitlab.com/eztexting/mcp-server",
-    "source": "gitlab"
+    "url": "https://github.com/eztexting/mcp-server",
+    "source": "github"
   },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@eztexting/mcp-server",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
