@@ -6,7 +6,7 @@ Stdio bridge to the EZTexting MCP service at `https://mcp.eztexting.com`. Use th
 
 > **Prefer remote.** Most modern MCP clients (Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+) connect direct to `https://mcp.eztexting.com/mcp` — no npm, no Node, no child process. See the [onboarding guide](https://mcp.eztexting.com/) for copy-paste configs.
 
-Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 42 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
+Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 38 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
 
 ## Remote (recommended)
 
@@ -45,8 +45,8 @@ The unified `/mcp` endpoint includes all of these. Use the per-sub-server form b
 |-----------|-----|-------|
 | `messaging` | `https://mcp.eztexting.com/mcp/messaging` | `message_send`, `message_list`, `message_get`, `message_template_*`, `conversation_*`, `message_report_*` |
 | `contacts` | `https://mcp.eztexting.com/mcp/contacts` | `contact_*`, `contact_group_*`, `contact_field_*` |
-| `workflows` | `https://mcp.eztexting.com/mcp/workflows` | `wf_fetch`, `wf_save`, `wf_status`, `wf_schema`, `wf_templates`, `wf_stat`, `wf_pub_available`, `wf_create_from_template` |
-| `admin` | `https://mcp.eztexting.com/mcp/admin` | `account_details`, `buy_credits`, `msg_stat`, `ai_compose_stat`, `webhook_*`, `keyword_list` |
+| `workflows` | `https://mcp.eztexting.com/mcp/workflows` | `wf_list`, `wf_fetch`, `wf_save`, `wf_status`, `wf_schema`, `wf_templates`, `wf_stat`, `wf_create_from_template` |
+| `admin` | `https://mcp.eztexting.com/mcp/admin` | `account_details`, `buy_credits`, `stat_get`, `webhook_*`, `keyword_list` |
 
 Tool names are exposed unprefixed; EZTexting's catalog has no cross-sub-server collisions.
 
