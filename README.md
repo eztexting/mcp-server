@@ -6,7 +6,7 @@ Stdio bridge to the EZTexting MCP service at `https://mcp.eztexting.com`. Use th
 
 > **Prefer remote.** Most modern MCP clients (Claude.ai, ChatGPT, Claude Desktop, Claude Code, Cursor 0.46+, VS Code 1.99+, Windsurf, Cline 3.0+) connect direct to `https://mcp.eztexting.com/mcp` — no npm, no Node, no child process. See the [onboarding guide](https://mcp.eztexting.com/) for copy-paste configs.
 
-Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 38 tools, one OAuth 2.1 PKCE dance. ~6k tokens of catalog (measured).
+Thin wrapper around [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) targeting the unified `/mcp` endpoint. One stdio MCP entry, all 38 tools (some staticly loaded and others discoverable), one OAuth 2.1 PKCE dance. ~3k tokens of catalog (measured).
 
 ## Remote (recommended)
 
